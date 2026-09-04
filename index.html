@@ -504,6 +504,38 @@
 </section>
 
 
+
+<!-- =========================
+     FANCY ALERT MODAL
+     ========================= -->
+
+<div id="fancyAlert" class="fancy-alert-overlay" aria-hidden="true">
+    <div class="fancy-alert-card" role="dialog" aria-modal="true" aria-labelledby="fancyAlertTitle">
+        <button
+            class="fancy-alert-close"
+            type="button"
+            onclick="closeFancyAlert()"
+            aria-label="Close"
+        >×</button>
+
+        <div id="fancyAlertIcon" class="fancy-alert-icon">✨</div>
+
+        <h2 id="fancyAlertTitle">Notice</h2>
+
+        <p id="fancyAlertMessage">
+            Something happened.
+        </p>
+
+        <button
+            class="fancy-alert-button"
+            type="button"
+            onclick="closeFancyAlert()"
+        >
+            Got it ✨
+        </button>
+    </div>
+</div>
+
 <footer>
 
     <p>
