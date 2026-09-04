@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Toolkit</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+
+    <h1>🎓 Student Toolkit</h1>
+
+    <p>Simple tools to make studying easier.</p>
+
+    <!-- AUTH STATUS -->
+    <div id="authStatus" class="auth-status">
+        <span id="authStatusText">Not logged in</span>
+        <button id="authButton" onclick="openAuth()">
+            🔐 Login / Sign Up
+        </button>
+    </div>
+
+</header>
+
+
+<!-- =========================
+     AUTHENTICATION
+     ========================= -->
+
+<section id="authTool" class="calculator auth-calculator">
+
+    <h2 id="authTitle">🔐 Login</h2>
+
+    <p id="authDescription" class="calculator-description">
+        Login to your Student Toolkit account.
+    </p>
+
+
+    <!-- SIGN UP NAME -->
+    <div id="nameField" class="auth-field hidden">
+
+        <label>Your Name</label>
+
+        <input
+            type="text"
+            id="authName"
+            placeholder="Enter your name"
+            maxlength="50"
+        >
+
+    </div>
+
+
+    <label>Email</label>
+
+    <input
+        type="email"
+        id="authEmail"
+        placeholder="Enter your email"
+        autocomplete="email"
+    >
+
+
+    <label>Password</label>
+
+    <input
+        type="password"
+        id="authPassword"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+    >
+
+
+    <button onclick="submitAuth()" id="authSubmitButton">
+        🔐 Login
+    </button>
+
+
+    <p id="authMessage" class="auth-message"></p>
+
+
+    <button
+        class="auth-switch-button"
+        onclick="toggleAuthMode()"
+        id="authSwitchButton"
+    >
+        Don't have an account? Sign Up
+    </button>
+
+
+    <button
+        class="backButton"
+        onclick="closeAuth()"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- =========================
+     TOOL MENU
+     ========================= -->
+
+<main class="tools" id="toolsMenu">
+
+    <div class="tool-card" onclick="openPercentage()">
+        <span>🧮</span>
+        <h2>Percentage</h2>
+        <p>Calculate percentages quickly.</p>
+    </div>
+
+
+    <div class="tool-card" onclick="openMarks()">
+        <span>📊</span>
+        <h2>Marks Calculator</h2>
+        <p>Calculate total, percentage and grade.</p>
+    </div>
+
+
+    <div class="tool-card" onclick="openCGPA()">
+        <span>🎯</span>
+        <h2>CGPA Calculator</h2>
+        <p>Calculate your CGPA easily.</p>
+    </div>
+
+
+    <div class="tool-card" onclick="openTimer()">
+        <span>⏱️</span>
+        <h2>Study Timer</h2>
+        <p>Focus with a simple timer.</p>
+    </div>
+
+
+    <div class="tool-card" onclick="openTimetable()">
+        <span>📅</span>
+        <h2>Study Timetable</h2>
+        <p>Create your weekly study schedule.</p>
+    </div>
+
+
+    <div class="tool-card" onclick="openConverter()">
+        <span>🔄</span>
+        <h2>Unit Converter</h2>
+        <p>Convert common units easily.</p>
+    </div>
+
+</main>
+
+
+<!-- =========================
+     PERCENTAGE
+     ========================= -->
+
+<section id="percentageTool" class="calculator">
+
+    <h2>🧮 Percentage Calculator</h2>
+
+    <label>What is</label>
+
+    <input
+        type="number"
+        id="percentage"
+        placeholder="Example: 20"
+    >
+
+    <label>% of</label>
+
+    <input
+        type="number"
+        id="number"
+        placeholder="Example: 500"
+    >
+
+    <button onclick="calculatePercentage()">
+        Calculate
+    </button>
+
+    <h3 id="percentageResult"></h3>
+
+    <button class="backButton" onclick="closePercentage()">
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- =========================
+     MARKS
+     ========================= -->
+
+<section id="marksTool" class="calculator">
+
+    <h2>📊 Marks Calculator</h2>
+
+    <p class="calculator-description">
+        Enter your marks for each subject.
+    </p>
+
+    <div id="subjects"></div>
+
+    <button onclick="addSubject()">
+        ➕ Add Subject
+    </button>
+
+    <button onclick="calculateMarks()">
+        Calculate
+    </button>
+
+    <div id="marksResult"></div>
+
+    <button class="backButton" onclick="closeMarks()">
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- =========================
+     CGPA
+     ========================= -->
+
+<section id="cgpaTool" class="calculator">
+
+    <h2>🎯 CGPA Calculator</h2>
+
+    <p class="calculator-description">
+        Enter the grade point for each subject.
+    </p>
+
+    <div id="cgpaSubjects"></div>
+
+    <button onclick="addCGPASubject()">
+        ➕ Add Subject
+    </button>
+
+    <button onclick="calculateCGPA()">
+        Calculate CGPA
+    </button>
+
+    <div id="cgpaResult"></div>
+
+    <button class="backButton" onclick="closeCGPA()">
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- =========================
+     TIMER
+     ========================= -->
+
+<section id="timerTool" class="calculator">
+
+    <h2>⏱️ Study Timer</h2>
+
+    <p class="calculator-description">
+        Focus on your studies without distractions.
+    </p>
+
+    <div id="timerDisplay">
+        25:00
+    </div>
+
+    <div class="timer-settings">
+
+        <input
+            type="number"
+            id="timerMinutes"
+            placeholder="Minutes"
+            min="1"
+            max="180"
+        >
+
+        <button onclick="setCustomTimer()">
+            Set
+        </button>
+
+    </div>
+
+    <div class="timer-buttons">
+
+        <button onclick="startTimer()">
+            ▶️ Start
+        </button>
+
+        <button onclick="pauseTimer()">
+            ⏸️ Pause
+        </button>
+
+        <button onclick="resetTimer()">
+            🔄 Reset
+        </button>
+
+    </div>
+
+    <p id="timerMessage">
+        Ready to focus? 💪
+    </p>
+
+    <button class="backButton" onclick="closeTimer()">
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- =========================
+     TIMETABLE
+     ========================= -->
+
+<section id="timetableTool" class="calculator timetable-calculator">
+
+    <h2>📅 Weekly Study Timetable</h2>
+
+    <p class="calculator-description">
+        Plan your week and stay consistent. 📚
+    </p>
+
+    <div class="timetable-form">
+
+        <select id="timetableDay">
+
+            <option value="">Select Day</option>
+
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+
+        </select>
+
+
+        <input
+            type="time"
+            id="timetableTime"
+        >
+
+
+        <input
+            type="text"
+            id="timetableSubject"
+            placeholder="Subject"
+            maxlength="50"
+        >
+
+
+        <button onclick="addTimetableEntry()">
+            ➕ Add Study Session
+        </button>
+
+    </div>
+
+
+    <div class="timetable-wrapper">
+
+        <div class="timetable-grid">
+
+            <div class="day-column">
+                <div class="day-header">Monday</div>
+                <div class="day-sessions" id="MondaySessions"></div>
+            </div>
+
+            <div class="day-column">
+                <div class="day-header">Tuesday</div>
+                <div class="day-sessions" id="TuesdaySessions"></div>
+            </div>
+
+            <div class="day-column">
+                <div class="day-header">Wednesday</div>
+                <div class="day-sessions" id="WednesdaySessions"></div>
+            </div>
+
+            <div class="day-column">
+                <div class="day-header">Thursday</div>
+                <div class="day-sessions" id="ThursdaySessions"></div>
+            </div>
+
+            <div class="day-column">
+                <div class="day-header">Friday</div>
+                <div class="day-sessions" id="FridaySessions"></div>
+            </div>
+
+            <div class="day-column">
+                <div class="day-header">Saturday</div>
+                <div class="day-sessions" id="SaturdaySessions"></div>
+            </div>
+
+            <div class="day-column">
+                <div class="day-header">Sunday</div>
+                <div class="day-sessions" id="SundaySessions"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="clearTimetableButton"
+        onclick="clearTimetable()"
+    >
+        🗑️ Clear Entire Timetable
+    </button>
+
+
+    <button
+        class="backButton"
+        onclick="closeTimetable()"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- =========================
+     UNIT CONVERTER
+     ========================= -->
+
+<section id="converterTool" class="calculator">
+
+    <h2>🔄 Unit Converter</h2>
+
+    <p class="calculator-description">
+        Convert common units quickly.
+    </p>
+
+
+    <select
+        id="converterCategory"
+        onchange="updateConverterUnits()"
+    >
+
+        <option value="length">
+            📏 Length
+        </option>
+
+        <option value="weight">
+            ⚖️ Weight
+        </option>
+
+        <option value="temperature">
+            🌡️ Temperature
+        </option>
+
+        <option value="volume">
+            💧 Volume
+        </option>
+
+    </select>
+
+
+    <input
+        type="number"
+        id="converterValue"
+        placeholder="Enter value"
+        oninput="convertUnits()"
+    >
+
+
+    <select
+        id="converterFrom"
+        onchange="convertUnits()"
+    ></select>
+
+
+    <button
+        class="swap-button"
+        onclick="swapUnits()"
+    >
+        🔄 Swap
+    </button>
+
+
+    <select
+        id="converterTo"
+        onchange="convertUnits()"
+    ></select>
+
+
+    <div id="converterResult">
+        Enter a value to convert.
+    </div>
+
+
+    <button
+        class="backButton"
+        onclick="closeConverter()"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+<footer>
+
+    <p>
+        Made for students ❤️
+    </p>
+
+</footer>
+
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- YOUR JAVASCRIPT -->
+<script src="script.js"></script>
+
+</body>
+</html>
