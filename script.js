@@ -1,13 +1,83 @@
 // ============================================================
 // STUDENT TOOLKIT
-// COMPLETE SCRIPT.JS - FIXED
+// COMPLETE SCRIPT.JS
+// Fancy Alerts + Supabase Auth + Dark Mode
 // ============================================================
 
+
 // ============================================================
-// SUPABASE CONNECTION
+// DARK MODE
 // ============================================================
 
-const SUPABASE_URL = "https://vfvghqnokipcqycfiznf.supabase.co";
+function getSavedTheme() {
+    return localStorage.getItem("studentToolkitTheme");
+}
+
+function getSystemTheme() {
+    return window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+}
+
+function applyTheme(theme) {
+    if (theme === "dark") {
+        document.body.classList.add("dark-mode");
+    } else {
+        document.body.classList.remove("dark-mode");
+    }
+
+    updateThemeButton(theme);
+}
+
+function updateThemeButton(theme) {
+    const button =
+        document.getElementById("themeToggle");
+
+    if (!button) return;
+
+    if (theme === "dark") {
+        button.textContent = "☀️ Light Mode";
+        button.setAttribute("aria-label", "Switch to light mode");
+    } else {
+        button.textContent = "🌙 Dark Mode";
+        button.setAttribute("aria-label", "Switch to dark mode");
+    }
+}
+
+function initializeTheme() {
+    const savedTheme =
+        getSavedTheme();
+
+    const theme =
+        savedTheme || getSystemTheme();
+
+    applyTheme(theme);
+}
+
+function toggleDarkMode() {
+    const isDark =
+        document.body.classList.contains("dark-mode");
+
+    const newTheme =
+        isDark ? "light" : "dark";
+
+    applyTheme(newTheme);
+
+    localStorage.setItem(
+        "studentToolkitTheme",
+        newTheme
+    );
+}
+
+
+// ============================================================
+// SUPABASE
+// ============================================================
+
+const SUPABASE_URL =
+    "https://vfvghqnokipcqycfiznf.supabase.co";
+
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_SbJXqQdFQtJnQliCwk1eDg_znXLy9cL";
 
@@ -16,50 +86,211 @@ let supabaseReady = false;
 
 function loadSupabase() {
     return new Promise((resolve, reject) => {
+
         if (window.supabase) {
-            supabaseClient = window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_PUBLISHABLE_KEY
-            );
+
+            supabaseClient =
+                window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_PUBLISHABLE_KEY
+                );
 
             supabaseReady = true;
-            resolve(supabaseClient);
+
+            resolve(
+                supabaseClient
+            );
+
             return;
         }
 
-        const script = document.createElement("script");
+        const script =
+            document.createElement("script");
 
         script.src =
             "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
         script.onload = () => {
+
             if (!window.supabase) {
-                reject(new Error("Supabase library failed to load."));
+                reject(
+                    new Error(
+                        "Supabase library failed to load."
+                    )
+                );
+
                 return;
             }
 
-            supabaseClient = window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_PUBLISHABLE_KEY
-            );
+            supabaseClient =
+                window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_PUBLISHABLE_KEY
+                );
 
             supabaseReady = true;
-            resolve(supabaseClient);
+
+            resolve(
+                supabaseClient
+            );
         };
 
         script.onerror = () => {
-            reject(new Error("Could not load Supabase."));
+            reject(
+                new Error(
+                    "Could not load Supabase."
+                )
+            );
         };
 
-        document.head.appendChild(script);
+        document.head.appendChild(
+            script
+        );
     });
 }
 
+
 // ============================================================
-// GENERAL NAVIGATION
+// FANCY ALERT
+// ============================================================
+
+function showFancyAlert(
+    message,
+    title = "Notice",
+    icon = "✨",
+    buttonText = "Got It ✨"
+) {
+
+    const overlay =
+        document.getElementById(
+            "fancyAlert"
+        );
+
+    if (!overlay) {
+        alert(message);
+        return;
+    }
+
+    const titleElement =
+        document.getElementById(
+            "fancyAlertTitle"
+        );
+
+    const messageElement =
+        document.getElementById(
+            "fancyAlertMessage"
+        );
+
+    const iconElement =
+        document.getElementById(
+            "fancyAlertIcon"
+        );
+
+    const buttonElement =
+        document.querySelector(
+            ".fancy-alert-button"
+        );
+
+    if (titleElement) {
+        titleElement.textContent =
+            title;
+    }
+
+    if (messageElement) {
+        messageElement.textContent =
+            message;
+    }
+
+    if (iconElement) {
+        iconElement.textContent =
+            icon;
+    }
+
+    if (buttonElement) {
+        buttonElement.textContent =
+            buttonText;
+    }
+
+    overlay.classList.add("show");
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    document.body.classList.add(
+        "modal-open"
+    );
+}
+
+function closeFancyAlert() {
+
+    const overlay =
+        document.getElementById(
+            "fancyAlert"
+        );
+
+    if (!overlay) return;
+
+    overlay.classList.remove(
+        "show"
+    );
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+}
+
+
+// Close popup by clicking outside
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const overlay =
+            document.getElementById(
+                "fancyAlert"
+            );
+
+        if (!overlay) return;
+
+        if (
+            event.target === overlay &&
+            overlay.classList.contains("show")
+        ) {
+            closeFancyAlert();
+        }
+    }
+);
+
+
+// Escape key
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape"
+        ) {
+            closeFancyAlert();
+        }
+    }
+);
+
+
+// ============================================================
+// NAVIGATION
 // ============================================================
 
 function hideAllTools() {
+
     const toolIds = [
         "authTool",
         "percentageTool",
@@ -70,24 +301,37 @@ function hideAllTools() {
         "converterTool"
     ];
 
-    toolIds.forEach(id => {
-        const element = document.getElementById(id);
+    toolIds.forEach(
+        id => {
 
-        if (element) {
-            element.style.display = "none";
+            const element =
+                document.getElementById(
+                    id
+                );
+
+            if (element) {
+                element.style.display =
+                    "none";
+            }
         }
-    });
+    );
 }
 
 function showMenu() {
+
     hideAllTools();
 
-    const menu = document.getElementById("toolsMenu");
+    const menu =
+        document.getElementById(
+            "toolsMenu"
+        );
 
     if (menu) {
-        menu.style.display = "grid";
+        menu.style.display =
+            "grid";
     }
 }
+
 
 // ============================================================
 // AUTHENTICATION
@@ -96,42 +340,87 @@ function showMenu() {
 let authMode = "login";
 
 function openAuth() {
+
     hideAllTools();
 
-    const authTool = document.getElementById("authTool");
+    const authTool =
+        document.getElementById(
+            "authTool"
+        );
 
     if (authTool) {
-        authTool.style.display = "block";
+        authTool.style.display =
+            "block";
     }
 
-    setAuthMode("login");
+    setAuthMode(
+        "login"
+    );
 }
 
 function closeAuth() {
-    const authTool = document.getElementById("authTool");
+
+    const authTool =
+        document.getElementById(
+            "authTool"
+        );
 
     if (authTool) {
-        authTool.style.display = "none";
+        authTool.style.display =
+            "none";
     }
 
     clearAuthForm();
+
     showMenu();
 }
 
-function setAuthMode(mode) {
-    authMode = mode === "signup" ? "signup" : "login";
+function setAuthMode(
+    mode
+) {
 
-    const title = document.getElementById("authTitle");
-    const description = document.getElementById("authDescription");
-    const nameField = document.getElementById("nameField");
-    const submitButton = document.getElementById("authSubmitButton");
-    const switchButton = document.getElementById("authSwitchButton");
-    const password = document.getElementById("authPassword");
+    authMode =
+        mode === "signup"
+            ? "signup"
+            : "login";
 
-    if (authMode === "signup") {
+    const title =
+        document.getElementById(
+            "authTitle"
+        );
+
+    const description =
+        document.getElementById(
+            "authDescription"
+        );
+
+    const nameField =
+        document.getElementById(
+            "nameField"
+        );
+
+    const submitButton =
+        document.getElementById(
+            "authSubmitButton"
+        );
+
+    const switchButton =
+        document.getElementById(
+            "authSwitchButton"
+        );
+
+    const password =
+        document.getElementById(
+            "authPassword"
+        );
+
+    if (
+        authMode === "signup"
+    ) {
 
         if (title) {
-            title.textContent = "📝 Create Account";
+            title.textContent =
+                "📝 Create Account";
         }
 
         if (description) {
@@ -139,15 +428,19 @@ function setAuthMode(mode) {
                 "Create your Student Toolkit account.";
         }
 
-        // IMPORTANT FIX:
-        // Show the name field when signing up.
         if (nameField) {
-            nameField.classList.remove("hidden");
-            nameField.style.display = "block";
+
+            nameField.classList.remove(
+                "hidden"
+            );
+
+            nameField.style.display =
+                "block";
         }
 
         if (submitButton) {
-            submitButton.textContent = "📝 Sign Up";
+            submitButton.textContent =
+                "📝 Sign Up";
         }
 
         if (switchButton) {
@@ -156,13 +449,15 @@ function setAuthMode(mode) {
         }
 
         if (password) {
-            password.autocomplete = "new-password";
+            password.autocomplete =
+                "new-password";
         }
 
     } else {
 
         if (title) {
-            title.textContent = "🔐 Login";
+            title.textContent =
+                "🔐 Login";
         }
 
         if (description) {
@@ -170,14 +465,19 @@ function setAuthMode(mode) {
                 "Login to your Student Toolkit account.";
         }
 
-        // Hide name field during login.
         if (nameField) {
-            nameField.classList.add("hidden");
-            nameField.style.display = "none";
+
+            nameField.classList.add(
+                "hidden"
+            );
+
+            nameField.style.display =
+                "none";
         }
 
         if (submitButton) {
-            submitButton.textContent = "🔐 Login";
+            submitButton.textContent =
+                "🔐 Login";
         }
 
         if (switchButton) {
@@ -186,19 +486,27 @@ function setAuthMode(mode) {
         }
 
         if (password) {
-            password.autocomplete = "current-password";
+            password.autocomplete =
+                "current-password";
         }
     }
 
-    const message = document.getElementById("authMessage");
+    const message =
+        document.getElementById(
+            "authMessage"
+        );
 
     if (message) {
-        message.textContent = "";
-        message.style.display = "none";
+        message.textContent =
+            "";
+
+        message.style.display =
+            "none";
     }
 }
 
 function toggleAuthMode() {
+
     setAuthMode(
         authMode === "login"
             ? "signup"
@@ -207,10 +515,26 @@ function toggleAuthMode() {
 }
 
 function clearAuthForm() {
-    const name = document.getElementById("authName");
-    const email = document.getElementById("authEmail");
-    const password = document.getElementById("authPassword");
-    const message = document.getElementById("authMessage");
+
+    const name =
+        document.getElementById(
+            "authName"
+        );
+
+    const email =
+        document.getElementById(
+            "authEmail"
+        );
+
+    const password =
+        document.getElementById(
+            "authPassword"
+        );
+
+    const message =
+        document.getElementById(
+            "authMessage"
+        );
 
     if (name) {
         name.value = "";
@@ -225,31 +549,48 @@ function clearAuthForm() {
     }
 
     if (message) {
-        message.textContent = "";
-        message.style.display = "none";
+        message.textContent =
+            "";
+
+        message.style.display =
+            "none";
     }
 }
 
-function showAuthMessage(message, isError = false) {
-    const element = document.getElementById("authMessage");
+function showAuthMessage(
+    message,
+    isError = false
+) {
 
-    if (!element) {
-        return;
-    }
+    const element =
+        document.getElementById(
+            "authMessage"
+        );
 
-    element.textContent = message;
-    element.style.display = message ? "block" : "none";
+    if (!element) return;
 
-    element.classList.toggle("error", isError);
+    element.textContent =
+        message;
+
+    element.style.display =
+        message
+            ? "block"
+            : "none";
+
+    element.classList.toggle(
+        "error",
+        isError
+    );
 }
 
-// ============================================================
-// SIGN UP
-// ============================================================
-
-async function signUpUser(email, password, name) {
+async function signUpUser(
+    email,
+    password,
+    name
+) {
 
     if (!supabaseReady) {
+
         showAuthMessage(
             "Supabase is still loading. Please try again.",
             true
@@ -258,49 +599,58 @@ async function signUpUser(email, password, name) {
         return false;
     }
 
-    name = name.trim();
-    email = email.trim();
+    if (!name.trim()) {
 
-    if (!name) {
         showAuthMessage(
             "Please enter your name.",
             true
         );
 
         document
-            .getElementById("authName")
+            .getElementById(
+                "authName"
+            )
             ?.focus();
 
         return false;
     }
 
-    if (!email) {
+    if (!email.trim()) {
+
         showAuthMessage(
             "Please enter your email.",
             true
         );
 
         document
-            .getElementById("authEmail")
+            .getElementById(
+                "authEmail"
+            )
             ?.focus();
 
         return false;
     }
 
     if (!password) {
+
         showAuthMessage(
             "Please enter a password.",
             true
         );
 
         document
-            .getElementById("authPassword")
+            .getElementById(
+                "authPassword"
+            )
             ?.focus();
 
         return false;
     }
 
-    if (password.length < 6) {
+    if (
+        password.length < 6
+    ) {
+
         showAuthMessage(
             "Password must be at least 6 characters.",
             true
@@ -311,16 +661,21 @@ async function signUpUser(email, password, name) {
 
     try {
 
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await supabaseClient.auth.signUp({
+                email:
+                    email.trim(),
 
-                email: email,
-
-                password: password,
+                password:
+                    password,
 
                 options: {
                     data: {
-                        full_name: name
+                        full_name:
+                            name.trim()
                     },
 
                     emailRedirectTo:
@@ -329,6 +684,7 @@ async function signUpUser(email, password, name) {
             });
 
         if (error) {
+
             showAuthMessage(
                 error.message,
                 true
@@ -337,7 +693,10 @@ async function signUpUser(email, password, name) {
             return false;
         }
 
-        if (data.user && !data.session) {
+        if (
+            data.user &&
+            !data.session
+        ) {
 
             showAuthMessage(
                 "Account created! 📧 Check your email and confirm your account before logging in."
@@ -368,11 +727,10 @@ async function signUpUser(email, password, name) {
     }
 }
 
-// ============================================================
-// LOGIN
-// ============================================================
-
-async function loginUser(email, password) {
+async function loginUser(
+    email,
+    password
+) {
 
     if (!supabaseReady) {
 
@@ -384,18 +742,12 @@ async function loginUser(email, password) {
         return false;
     }
 
-    email = email.trim();
-
-    if (!email) {
+    if (!email.trim()) {
 
         showAuthMessage(
             "Please enter your email.",
             true
         );
-
-        document
-            .getElementById("authEmail")
-            ?.focus();
 
         return false;
     }
@@ -407,21 +759,21 @@ async function loginUser(email, password) {
             true
         );
 
-        document
-            .getElementById("authPassword")
-            ?.focus();
-
         return false;
     }
 
     try {
 
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await supabaseClient.auth.signInWithPassword({
+                email:
+                    email.trim(),
 
-                email: email,
-
-                password: password
+                password:
+                    password
             });
 
         if (error) {
@@ -438,7 +790,9 @@ async function loginUser(email, password) {
             "Welcome back! 🎉"
         );
 
-        updateAuthUI(data.user);
+        updateAuthUI(
+            data.user
+        );
 
         return true;
 
@@ -458,26 +812,22 @@ async function loginUser(email, password) {
     }
 }
 
-// ============================================================
-// SUBMIT AUTH FORM
-// ============================================================
-
 async function submitAuth() {
 
     const name =
-        document
-            .getElementById("authName")
-            ?.value || "";
+        document.getElementById(
+            "authName"
+        )?.value || "";
 
     const email =
-        document
-            .getElementById("authEmail")
-            ?.value || "";
+        document.getElementById(
+            "authEmail"
+        )?.value || "";
 
     const password =
-        document
-            .getElementById("authPassword")
-            ?.value || "";
+        document.getElementById(
+            "authPassword"
+        )?.value || "";
 
     const button =
         document.getElementById(
@@ -490,7 +840,9 @@ async function submitAuth() {
 
     try {
 
-        if (authMode === "signup") {
+        if (
+            authMode === "signup"
+        ) {
 
             await signUpUser(
                 email,
@@ -514,10 +866,6 @@ async function submitAuth() {
     }
 }
 
-// ============================================================
-// LOGOUT
-// ============================================================
-
 async function logoutUser() {
 
     if (!supabaseReady) {
@@ -526,7 +874,9 @@ async function logoutUser() {
 
     try {
 
-        const { error } =
+        const {
+            error
+        } =
             await supabaseClient.auth.signOut();
 
         if (error) {
@@ -539,7 +889,10 @@ async function logoutUser() {
             return;
         }
 
-        updateAuthUI(null);
+        updateAuthUI(
+            null
+        );
+
         showMenu();
 
     } catch (error) {
@@ -551,31 +904,9 @@ async function logoutUser() {
     }
 }
 
-// ============================================================
-// CURRENT USER
-// ============================================================
-
-async function getCurrentUser() {
-
-    if (!supabaseReady) {
-        return null;
-    }
-
-    const { data, error } =
-        await supabaseClient.auth.getUser();
-
-    if (error) {
-        return null;
-    }
-
-    return data?.user || null;
-}
-
-// ============================================================
-// UPDATE AUTH UI
-// ============================================================
-
-function updateAuthUI(user) {
+function updateAuthUI(
+    user
+) {
 
     const statusText =
         document.getElementById(
@@ -591,8 +922,14 @@ function updateAuthUI(user) {
 
         if (statusText) {
 
+            const fullName =
+                user.user_metadata
+                    ?.full_name;
+
             statusText.textContent =
-                `Logged in: ${user.email}`;
+                fullName
+                    ? `Hi, ${fullName} 👋`
+                    : `Logged in: ${user.email}`;
         }
 
         if (authButton) {
@@ -607,7 +944,6 @@ function updateAuthUI(user) {
     } else {
 
         if (statusText) {
-
             statusText.textContent =
                 "Not logged in";
         }
@@ -623,10 +959,6 @@ function updateAuthUI(user) {
     }
 }
 
-// ============================================================
-// CHECK LOGIN
-// ============================================================
-
 async function checkLoggedInUser() {
 
     if (!supabaseReady) {
@@ -635,7 +967,10 @@ async function checkLoggedInUser() {
 
     try {
 
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await supabaseClient.auth.getUser();
 
         if (
@@ -643,7 +978,10 @@ async function checkLoggedInUser() {
             !data?.user
         ) {
 
-            updateAuthUI(null);
+            updateAuthUI(
+                null
+            );
+
             return;
         }
 
@@ -658,13 +996,11 @@ async function checkLoggedInUser() {
             error
         );
 
-        updateAuthUI(null);
+        updateAuthUI(
+            null
+        );
     }
 }
-
-// ============================================================
-// AUTH LISTENER
-// ============================================================
 
 function setupAuthListener() {
 
@@ -673,7 +1009,10 @@ function setupAuthListener() {
     }
 
     supabaseClient.auth.onAuthStateChange(
-        (event, session) => {
+        (
+            event,
+            session
+        ) => {
 
             console.log(
                 "Auth event:",
@@ -681,11 +1020,13 @@ function setupAuthListener() {
             );
 
             updateAuthUI(
-                session?.user || null
+                session?.user ||
+                null
             );
         }
     );
 }
+
 
 // ============================================================
 // PERCENTAGE CALCULATOR
@@ -701,7 +1042,8 @@ function openPercentage() {
         );
 
     if (tool) {
-        tool.style.display = "block";
+        tool.style.display =
+            "block";
     }
 }
 
@@ -713,7 +1055,8 @@ function closePercentage() {
         );
 
     if (tool) {
-        tool.style.display = "none";
+        tool.style.display =
+            "none";
     }
 
     showMenu();
@@ -766,8 +1109,12 @@ function calculatePercentage() {
         );
 
     if (
-        !Number.isFinite(percentage) ||
-        !Number.isFinite(number)
+        !Number.isFinite(
+            percentage
+        ) ||
+        !Number.isFinite(
+            number
+        )
     ) {
 
         result.textContent =
@@ -777,12 +1124,16 @@ function calculatePercentage() {
     }
 
     const answer =
-        (percentage / 100) *
+        (
+            percentage /
+            100
+        ) *
         number;
 
     result.textContent =
         `${percentage}% of ${number} = ${answer}`;
 }
+
 
 // ============================================================
 // MARKS CALCULATOR
@@ -800,7 +1151,8 @@ function openMarks() {
         );
 
     if (tool) {
-        tool.style.display = "block";
+        tool.style.display =
+            "block";
     }
 
     if (
@@ -823,7 +1175,8 @@ function closeMarks() {
         );
 
     if (tool) {
-        tool.style.display = "none";
+        tool.style.display =
+            "none";
     }
 
     showMenu();
@@ -855,7 +1208,8 @@ function addSubject() {
             "input"
         );
 
-    nameInput.type = "text";
+    nameInput.type =
+        "text";
 
     nameInput.placeholder =
         `Subject ${subjectCount}`;
@@ -877,8 +1231,11 @@ function addSubject() {
     marksInput.className =
         "marks";
 
-    marksInput.min = "0";
-    marksInput.max = "100";
+    marksInput.min =
+        "0";
+
+    marksInput.max =
+        "100";
 
     const removeButton =
         document.createElement(
@@ -914,11 +1271,13 @@ function addSubject() {
     );
 }
 
-function removeSubject(button) {
+function removeSubject(
+    button
+) {
 
-    if (button?.parentElement) {
-        button.parentElement.remove();
-    }
+    button
+        ?.parentElement
+        ?.remove();
 }
 
 function calculateMarks() {
@@ -943,15 +1302,21 @@ function calculateMarks() {
     marksInputs.forEach(
         input => {
 
-            if (input.value === "") {
+            if (
+                input.value === ""
+            ) {
                 return;
             }
 
             const value =
-                Number(input.value);
+                Number(
+                    input.value
+                );
 
             if (
-                Number.isFinite(value) &&
+                Number.isFinite(
+                    value
+                ) &&
                 value >= 0 &&
                 value <= 100
             ) {
@@ -962,7 +1327,9 @@ function calculateMarks() {
         }
     );
 
-    if (subjects === 0) {
+    if (
+        subjects === 0
+    ) {
 
         result.innerHTML =
             "<p>Please enter your marks first.</p>";
@@ -974,19 +1341,33 @@ function calculateMarks() {
         subjects * 100;
 
     const percentage =
-        (total / maximum) * 100;
+        (
+            total /
+            maximum
+        ) *
+        100;
 
     let grade;
 
-    if (percentage >= 90) {
+    if (
+        percentage >= 90
+    ) {
         grade = "A+ 🏆";
-    } else if (percentage >= 80) {
+    } else if (
+        percentage >= 80
+    ) {
         grade = "A 🔥";
-    } else if (percentage >= 70) {
+    } else if (
+        percentage >= 70
+    ) {
         grade = "B 👍";
-    } else if (percentage >= 60) {
+    } else if (
+        percentage >= 60
+    ) {
         grade = "C 🙂";
-    } else if (percentage >= 50) {
+    } else if (
+        percentage >= 50
+    ) {
         grade = "D";
     } else {
         grade = "F";
@@ -1000,6 +1381,7 @@ function calculateMarks() {
         <p>Grade: <strong>${grade}</strong></p>
     `;
 }
+
 
 // ============================================================
 // CGPA CALCULATOR
@@ -1017,7 +1399,8 @@ function openCGPA() {
         );
 
     if (tool) {
-        tool.style.display = "block";
+        tool.style.display =
+            "block";
     }
 
     if (
@@ -1040,7 +1423,8 @@ function closeCGPA() {
         );
 
     if (tool) {
-        tool.style.display = "none";
+        tool.style.display =
+            "none";
     }
 
     showMenu();
@@ -1092,9 +1476,14 @@ function addCGPASubject() {
     gradeInput.placeholder =
         "Grade Point";
 
-    gradeInput.min = "0";
-    gradeInput.max = "10";
-    gradeInput.step = "0.1";
+    gradeInput.min =
+        "0";
+
+    gradeInput.max =
+        "10";
+
+    gradeInput.step =
+        "0.1";
 
     const removeButton =
         document.createElement(
@@ -1152,15 +1541,21 @@ function calculateCGPA() {
     inputs.forEach(
         input => {
 
-            if (input.value === "") {
+            if (
+                input.value === ""
+            ) {
                 return;
             }
 
             const value =
-                Number(input.value);
+                Number(
+                    input.value
+                );
 
             if (
-                Number.isFinite(value) &&
+                Number.isFinite(
+                    value
+                ) &&
                 value >= 0 &&
                 value <= 10
             ) {
@@ -1171,7 +1566,9 @@ function calculateCGPA() {
         }
     );
 
-    if (count === 0) {
+    if (
+        count === 0
+    ) {
 
         result.innerHTML =
             "<p>Please enter your grade points.</p>";
@@ -1180,7 +1577,8 @@ function calculateCGPA() {
     }
 
     const cgpa =
-        total / count;
+        total /
+        count;
 
     result.innerHTML = `
         <h3>🎯 Your Result</h3>
@@ -1189,13 +1587,19 @@ function calculateCGPA() {
     `;
 }
 
+
 // ============================================================
 // STUDY TIMER
 // ============================================================
 
-let timerSeconds = 25 * 60;
-let timerInterval = null;
-let timerRunning = false;
+let timerSeconds =
+    25 * 60;
+
+let timerInterval =
+    null;
+
+let timerRunning =
+    false;
 
 function openTimer() {
 
@@ -1207,7 +1611,8 @@ function openTimer() {
         );
 
     if (tool) {
-        tool.style.display = "block";
+        tool.style.display =
+            "block";
     }
 
     updateTimerDisplay();
@@ -1223,7 +1628,8 @@ function closeTimer() {
         );
 
     if (tool) {
-        tool.style.display = "none";
+        tool.style.display =
+            "none";
     }
 
     showMenu();
@@ -1242,11 +1648,13 @@ function updateTimerDisplay() {
 
     const minutes =
         Math.floor(
-            timerSeconds / 60
+            timerSeconds /
+            60
         );
 
     const seconds =
-        timerSeconds % 60;
+        timerSeconds %
+        60;
 
     display.textContent =
         `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
@@ -1261,7 +1669,8 @@ function startTimer() {
         return;
     }
 
-    timerRunning = true;
+    timerRunning =
+        true;
 
     const message =
         document.getElementById(
@@ -1274,35 +1683,43 @@ function startTimer() {
     }
 
     timerInterval =
-        setInterval(() => {
+        setInterval(
+            () => {
 
-            timerSeconds--;
+                timerSeconds--;
 
-            updateTimerDisplay();
+                updateTimerDisplay();
 
-            if (timerSeconds <= 0) {
+                if (
+                    timerSeconds <= 0
+                ) {
 
-                clearInterval(
-                    timerInterval
-                );
+                    clearInterval(
+                        timerInterval
+                    );
 
-                timerInterval =
-                    null;
+                    timerInterval =
+                        null;
 
-                timerRunning =
-                    false;
+                    timerRunning =
+                        false;
 
-                if (message) {
-                    message.textContent =
-                        "🎉 Time's up! Great work!";
+                    if (message) {
+                        message.textContent =
+                            "🎉 Time's up! Great work!";
+                    }
+
+                    showFancyAlert(
+                        "Your study session is complete. Great work! 🎉",
+                        "Session Complete!",
+                        "🎉",
+                        "Awesome! 🚀"
+                    );
                 }
 
-                alert(
-                    "⏰ Study session complete!"
-                );
-            }
-
-        }, 1000);
+            },
+            1000
+        );
 }
 
 function pauseTimer() {
@@ -1311,8 +1728,11 @@ function pauseTimer() {
         timerInterval
     );
 
-    timerInterval = null;
-    timerRunning = false;
+    timerInterval =
+        null;
+
+    timerRunning =
+        false;
 
     const message =
         document.getElementById(
@@ -1331,8 +1751,11 @@ function resetTimer() {
         timerInterval
     );
 
-    timerInterval = null;
-    timerRunning = false;
+    timerInterval =
+        null;
+
+    timerRunning =
+        false;
 
     timerSeconds =
         25 * 60;
@@ -1362,16 +1785,23 @@ function setCustomTimer() {
     }
 
     const minutes =
-        Number(input.value);
+        Number(
+            input.value
+        );
 
     if (
-        !Number.isFinite(minutes) ||
+        !Number.isFinite(
+            minutes
+        ) ||
         minutes < 1 ||
         minutes > 180
     ) {
 
-        alert(
-            "Enter a time between 1 and 180 minutes."
+        showFancyAlert(
+            "Please enter a study time between 1 and 180 minutes.",
+            "Invalid Time",
+            "⏱️",
+            "Try Again"
         );
 
         return;
@@ -1381,8 +1811,11 @@ function setCustomTimer() {
         timerInterval
     );
 
-    timerInterval = null;
-    timerRunning = false;
+    timerInterval =
+        null;
+
+    timerRunning =
+        false;
 
     timerSeconds =
         Math.floor(
@@ -1391,7 +1824,8 @@ function setCustomTimer() {
 
     updateTimerDisplay();
 
-    input.value = "";
+    input.value =
+        "";
 
     const message =
         document.getElementById(
@@ -1403,6 +1837,7 @@ function setCustomTimer() {
             `${minutes} minute timer set! 🎯`;
     }
 }
+
 
 // ============================================================
 // STUDY TIMETABLE
@@ -1457,7 +1892,8 @@ function openTimetable() {
         );
 
     if (tool) {
-        tool.style.display = "block";
+        tool.style.display =
+            "block";
     }
 
     displayTimetable();
@@ -1471,7 +1907,8 @@ function closeTimetable() {
         );
 
     if (tool) {
-        tool.style.display = "none";
+        tool.style.display =
+            "none";
     }
 
     showMenu();
@@ -1500,20 +1937,24 @@ function addTimetableEntry() {
         !subject
     ) {
 
-        alert(
-            "Please select a day, choose a time and enter a subject."
+        showFancyAlert(
+            "Please select a day, choose a time and enter a subject.",
+            "Almost There!",
+            "📚",
+            "Got It ✨"
         );
 
         return;
     }
 
     timetableEntries.push({
-        day,
-        time,
-        subject
+        day: day,
+        time: time,
+        subject: subject
     });
 
     saveTimetable();
+
     displayTimetable();
 
     document.getElementById(
@@ -1529,7 +1970,9 @@ function addTimetableEntry() {
     ).value = "";
 }
 
-function deleteTimetableEntry(index) {
+function deleteTimetableEntry(
+    index
+) {
 
     if (
         index < 0 ||
@@ -1544,6 +1987,7 @@ function deleteTimetableEntry(index) {
     );
 
     saveTimetable();
+
     displayTimetable();
 }
 
@@ -1554,6 +1998,13 @@ function clearTimetable() {
     ) {
         return;
     }
+
+    showFancyAlert(
+        "This will remove every session from your timetable.",
+        "Clear Timetable?",
+        "🗑️",
+        "Close"
+    );
 
     const confirmed =
         confirm(
@@ -1567,6 +2018,7 @@ function clearTimetable() {
     timetableEntries = [];
 
     saveTimetable();
+
     displayTimetable();
 }
 
@@ -1601,7 +2053,8 @@ function displayTimetable() {
                 );
 
             if (container) {
-                container.innerHTML = "";
+                container.innerHTML =
+                    "";
             }
         }
     );
@@ -1609,20 +2062,31 @@ function displayTimetable() {
     const sortedEntries =
         timetableEntries
             .map(
-                (entry, index) => ({
+                (
+                    entry,
+                    index
+                ) => ({
                     ...entry,
-                    originalIndex: index
+                    originalIndex:
+                        index
                 })
             )
             .sort(
-                (a, b) => {
+                (
+                    a,
+                    b
+                ) => {
 
                     const dayDifference =
                         (
-                            dayOrder[a.day] || 99
+                            dayOrder[
+                                a.day
+                            ] || 99
                         ) -
                         (
-                            dayOrder[b.day] || 99
+                            dayOrder[
+                                b.day
+                            ] || 99
                         );
 
                     if (
@@ -1634,7 +2098,9 @@ function displayTimetable() {
                     return String(
                         a.time
                     ).localeCompare(
-                        String(b.time)
+                        String(
+                            b.time
+                        )
                     );
                 }
             );
@@ -1654,7 +2120,8 @@ function displayTimetable() {
             const dayEntries =
                 sortedEntries.filter(
                     entry =>
-                        entry.day === day
+                        entry.day ===
+                        day
                 );
 
             if (
@@ -1749,6 +2216,7 @@ function displayTimetable() {
         }
     );
 }
+
 
 // ============================================================
 // UNIT CONVERTER
@@ -1876,7 +2344,8 @@ function updateConverterUnits() {
     const category =
         document.getElementById(
             "converterCategory"
-        )?.value || "length";
+        )?.value ||
+        "length";
 
     const from =
         document.getElementById(
@@ -1888,24 +2357,39 @@ function updateConverterUnits() {
             "converterTo"
         );
 
-    if (!from || !to) {
+    if (
+        !from ||
+        !to
+    ) {
         return;
     }
 
-    from.innerHTML = "";
-    to.innerHTML = "";
+    from.innerHTML =
+        "";
+
+    to.innerHTML =
+        "";
 
     Object.entries(
-        converterUnits[category]
+        converterUnits[
+            category
+        ]
     ).forEach(
-        ([key, unit]) => {
+        (
+            [
+                key,
+                unit
+            ]
+        ) => {
 
             const fromOption =
                 document.createElement(
                     "option"
                 );
 
-            fromOption.value = key;
+            fromOption.value =
+                key;
+
             fromOption.textContent =
                 unit.name;
 
@@ -1918,7 +2402,9 @@ function updateConverterUnits() {
                     "option"
                 );
 
-            toOption.value = key;
+            toOption.value =
+                key;
+
             toOption.textContent =
                 unit.name;
 
@@ -1931,7 +2417,8 @@ function updateConverterUnits() {
     if (
         to.options.length > 1
     ) {
-        to.selectedIndex = 1;
+        to.selectedIndex =
+            1;
     }
 
     convertUnits();
@@ -1945,17 +2432,23 @@ function convertTemperature(
 
     let celsius;
 
-    if (from === "celsius") {
+    if (
+        from === "celsius"
+    ) {
 
-        celsius = value;
+        celsius =
+            value;
 
     } else if (
         from === "fahrenheit"
     ) {
 
         celsius =
-            (value - 32) *
-            5 / 9;
+            (
+                value - 32
+            ) *
+            5 /
+            9;
 
     } else {
 
@@ -1963,18 +2456,27 @@ function convertTemperature(
             value - 273.15;
     }
 
-    if (to === "celsius") {
+    if (
+        to === "celsius"
+    ) {
         return celsius;
     }
 
-    if (to === "fahrenheit") {
+    if (
+        to === "fahrenheit"
+    ) {
 
         return (
-            celsius * 9 / 5
+            celsius *
+            9 /
+            5
         ) + 32;
     }
 
-    return celsius + 273.15;
+    return (
+        celsius +
+        273.15
+    );
 }
 
 function convertUnits() {
@@ -1982,7 +2484,8 @@ function convertUnits() {
     const category =
         document.getElementById(
             "converterCategory"
-        )?.value || "length";
+        )?.value ||
+        "length";
 
     const valueInput =
         document.getElementById(
@@ -2029,7 +2532,9 @@ function convertUnits() {
         );
 
     if (
-        !Number.isFinite(value)
+        !Number.isFinite(
+            value
+        )
     ) {
 
         result.textContent =
@@ -2041,7 +2546,8 @@ function convertUnits() {
     let converted;
 
     if (
-        category === "temperature"
+        category ===
+        "temperature"
     ) {
 
         converted =
@@ -2093,7 +2599,10 @@ function swapUnits() {
             "converterTo"
         );
 
-    if (!from || !to) {
+    if (
+        !from ||
+        !to
+    ) {
         return;
     }
 
@@ -2119,7 +2628,8 @@ function openConverter() {
         );
 
     if (tool) {
-        tool.style.display = "block";
+        tool.style.display =
+            "block";
     }
 
     updateConverterUnits();
@@ -2133,11 +2643,13 @@ function closeConverter() {
         );
 
     if (tool) {
-        tool.style.display = "none";
+        tool.style.display =
+            "none";
     }
 
     showMenu();
 }
+
 
 // ============================================================
 // INITIALIZATION
@@ -2147,42 +2659,46 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        // Start with menu visible.
+        // 🌙 Initialize theme FIRST
+        initializeTheme();
+
         showMenu();
 
-        // Prepare converter.
         updateConverterUnits();
 
-        // Load timetable.
         displayTimetable();
 
-        // Connect Supabase.
         loadSupabase()
+            .then(
+                () => {
 
-            .then(() => {
+                    console.log(
+                        "✅ Student Toolkit + Supabase ready!"
+                    );
 
-                console.log(
-                    "✅ Student Toolkit + Supabase ready!"
-                );
+                    updateAuthUI(
+                        null
+                    );
 
-                updateAuthUI(null);
+                    setupAuthListener();
 
-                setupAuthListener();
+                    checkLoggedInUser();
+                }
+            )
+            .catch(
+                error => {
 
-                checkLoggedInUser();
-            })
+                    console.error(
+                        "Supabase connection error:",
+                        error
+                    );
 
-            .catch(error => {
+                    updateAuthUI(
+                        null
+                    );
+                }
+            );
 
-                console.error(
-                    "Supabase connection error:",
-                    error
-                );
-
-                updateAuthUI(null);
-            });
-
-        // Enter key submits authentication.
         [
             "authName",
             "authEmail",
@@ -2204,7 +2720,8 @@ document.addEventListener(
                     event => {
 
                         if (
-                            event.key === "Enter"
+                            event.key ===
+                            "Enter"
                         ) {
                             submitAuth();
                         }
