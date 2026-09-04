@@ -756,3 +756,320 @@ footer {
         min-width: 1050px;
     }
 }
+
+/* =========================
+   FANCY ALERT MODAL
+   ========================= */
+
+.fancy-alert-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 18, 30, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+.fancy-alert-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.fancy-alert-card {
+    position: relative;
+
+    width: min(430px, 100%);
+    padding: 34px 26px 28px;
+
+    text-align: center;
+
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 28px;
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.25),
+        0 8px 30px rgba(0, 0, 0, 0.12);
+
+    transform: translateY(18px) scale(0.94);
+    transition: transform 0.3s cubic-bezier(.2,.8,.2,1);
+}
+
+.fancy-alert-overlay.show .fancy-alert-card {
+    transform: translateY(0) scale(1);
+}
+
+.fancy-alert-icon {
+    width: 76px;
+    height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 18px;
+
+    font-size: 38px;
+
+    border-radius: 50%;
+
+    background: linear-gradient(135deg, #eef2ff, #f5e8ff);
+    box-shadow: 0 10px 30px rgba(80, 70, 160, 0.18);
+}
+
+.fancy-alert-card h2 {
+    margin: 0 0 10px;
+
+    font-size: 25px;
+    font-weight: 800;
+
+    color: #171827;
+}
+
+.fancy-alert-card p {
+    margin: 0 auto 24px;
+
+    max-width: 340px;
+
+    font-size: 16px;
+    line-height: 1.6;
+
+    color: #626477;
+}
+
+.fancy-alert-button {
+    width: 100% !important;
+
+    margin: 0 !important;
+    padding: 14px 20px !important;
+
+    border: 0 !important;
+    border-radius: 14px !important;
+
+    background: linear-gradient(135deg, #6c63ff, #8b5cf6) !important;
+    color: white !important;
+
+    font-size: 16px !important;
+    font-weight: 700 !important;
+
+    cursor: pointer;
+
+    box-shadow: 0 10px 22px rgba(108, 99, 255, 0.28);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.fancy-alert-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(108, 99, 255, 0.34);
+}
+
+.fancy-alert-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+
+    width: 38px !important;
+    height: 38px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0 !important;
+    border-radius: 50% !important;
+
+    background: #f1f2f7 !important;
+    color: #666 !important;
+
+    font-size: 26px !important;
+    line-height: 1 !important;
+
+    cursor: pointer;
+}
+
+.fancy-alert-close:hover {
+    background: #e7e8ef !important;
+    transform: none !important;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+@media (max-width: 500px) {
+    .fancy-alert-card {
+        padding: 30px 20px 22px;
+        border-radius: 24px;
+    }
+
+    .fancy-alert-icon {
+        width: 68px;
+        height: 68px;
+        font-size: 34px;
+    }
+
+    .fancy-alert-card h2 {
+        font-size: 23px;
+    }
+}
+
+
+/* =========================
+   DARK MODE
+   ========================= */
+
+.theme-toggle {
+    margin-top: 14px;
+    border: 1px solid #ddd;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: #fff;
+    color: #222;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: transform .2s, background .2s, color .2s, border-color .2s;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+}
+
+body.dark-mode {
+    background: #0f1117 !important;
+    color: #f1f3f8 !important;
+}
+
+body.dark-mode header p,
+body.dark-mode .tool-card p,
+body.dark-mode .calculator-description,
+body.dark-mode .calculator label,
+body.dark-mode #timerMessage,
+body.dark-mode .session-time,
+body.dark-mode footer,
+body.dark-mode #authStatusText {
+    color: #aeb5c2 !important;
+}
+
+body.dark-mode .auth-status,
+body.dark-mode .tool-card,
+body.dark-mode .calculator,
+body.dark-mode .session-card {
+    background: #181b24 !important;
+    color: #f1f3f8 !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,.35) !important;
+}
+
+body.dark-mode .calculator input,
+body.dark-mode .calculator select {
+    background: #10131a !important;
+    color: #f1f3f8 !important;
+    border-color: #343947 !important;
+}
+
+body.dark-mode .calculator input::placeholder {
+    color: #747d8d !important;
+}
+
+body.dark-mode .calculator input:focus,
+body.dark-mode .calculator select:focus {
+    border-color: #8b5cf6 !important;
+}
+
+body.dark-mode .calculator button,
+body.dark-mode .auth-status button {
+    background: #f1f3f8 !important;
+    color: #11131a !important;
+}
+
+body.dark-mode .auth-switch-button,
+body.dark-mode .backButton,
+body.dark-mode .remove-subject,
+body.dark-mode .remove-session,
+body.dark-mode .clearTimetableButton,
+body.dark-mode .swap-button {
+    background: #292e3a !important;
+    color: #f1f3f8 !important;
+}
+
+body.dark-mode #marksResult,
+body.dark-mode #cgpaResult,
+body.dark-mode #converterResult,
+body.dark-mode .day-column {
+    background: #11141c !important;
+    border-color: #303542 !important;
+    color: #f1f3f8 !important;
+}
+
+body.dark-mode .day-header {
+    background: #292e3a !important;
+}
+
+body.dark-mode .empty-day {
+    color: #727b8b !important;
+}
+
+body.dark-mode .fancy-alert-overlay {
+    background: rgba(0,0,0,.72) !important;
+}
+
+body.dark-mode .fancy-alert-card {
+    background: #181b24 !important;
+    color: #f1f3f8 !important;
+}
+
+body.dark-mode .fancy-alert-card p {
+    color: #aeb5c2 !important;
+}
+
+body.dark-mode .fancy-alert-close {
+    color: #aeb5c2 !important;
+}
+
+body.dark-mode .theme-toggle {
+    background: #181b24 !important;
+    color: #f1f3f8 !important;
+    border-color: #343947 !important;
+}
+
+body.dark-mode .theme-toggle:hover {
+    background: #222733 !important;
+}
+
+/* Smooth theme transition */
+body,
+.auth-status,
+.tool-card,
+.calculator,
+.session-card,
+.calculator input,
+.calculator select,
+.theme-toggle,
+.day-column,
+#marksResult,
+#cgpaResult,
+#converterResult {
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
