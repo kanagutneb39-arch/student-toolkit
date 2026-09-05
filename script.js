@@ -1,750 +1,854 @@
 // ============================================================
 // STUDENT TOOLKIT
-// COMPLETE SCRIPT.JS - FIXED
+// BRAND-NEW SCRIPT.JS
 // ============================================================
 
+
 // ============================================================
-// SUPABASE CONNECTION
+// SUPABASE
 // ============================================================
 
-const SUPABASE_URL = "https://vfvghqnokipcqycfiznf.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_SbJXqQdFQtJnQliCwk1eDg_znXLy9cL";
+const SUPABASE_URL =
+    "https://vfvghqnokipcqycfiznf.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_SbJXqQdFQtJnQliCwk1eDg_znXLy9cL";
 
 let supabaseClient = null;
-let supabaseReady = false;
 
-function loadSupabase() {
-    return new Promise((resolve, reject) => {
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_PUBLISHABLE_KEY
-            );
-            supabaseReady = true;
-            resolve(supabaseClient);
-            return;
-        }
 
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-        script.onload = () => {
-            if (!window.supabase) {
-                reject(new Error("Supabase library failed to load."));
-                return;
-            }
+// Load Supabase
+async function loadSupabase() {
+    if (typeof window.supabase === "undefined") {
+        throw new Error("Supabase library was not loaded.");
+    }
 
-            supabaseClient = window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_PUBLISHABLE_KEY
-            );
-            supabaseReady = true;
-            resolve(supabaseClient);
-        };
-        script.onerror = () => reject(new Error("Could not load Supabase."));
-        document.head.appendChild(script);
-    });
+    supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+    return supabaseClient;
 }
 
+
 // ============================================================
+// GLOBAL STATE
 // ============================================================
-// DARK MODE
+
+let authMode = "login";
+
+let timerInterval = null;
+let timerSeconds = 25 * 60;
+let timerRunning = false;
+
+let timetableEntries = [];
+
+const timetableDays = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday"
+];
+
+
+// ============================================================
+// THEME / DARK MODE
 // ============================================================
 
 function applyTheme(theme) {
-    const dark = theme === "dark";
-
-    document.body.classList.toggle("dark-mode", dark);
-
+    const body = document.body;
     const button = document.getElementById("themeToggle");
 
-    if (button) {
-        button.textContent = dark ? "☀️ Light Mode" : "🌙 Dark Mode";
-        button.setAttribute(
-            "aria-label",
-            dark ? "Switch to light mode" : "Switch to dark mode"
-        );
+    if (!body) return;
+
+    if (theme === "dark") {
+        body.classList.add("dark-mode");
+
+        if (button) {
+            button.textContent = "☀️ Light Mode";
+            button.setAttribute(
+                "aria-label",
+                "Switch to light mode"
+            );
+        }
+    } else {
+        body.classList.remove("dark-mode");
+
+        if (button) {
+            button.textContent = "🌙 Dark Mode";
+            button.setAttribute(
+                "aria-label",
+                "Switch to dark mode"
+            );
+        }
     }
 }
 
-function toggleTheme() {
-    const isDark = document.body.classList.contains("dark-mode");
-    const newTheme = isDark ? "light" : "dark";
 
-    localStorage.setItem("studentToolkitTheme", newTheme);
-    applyTheme(newTheme);
+function getSystemTheme() {
+    if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+        return "dark";
+    }
+
+    return "light";
 }
 
+
 function initializeTheme() {
-    const savedTheme = localStorage.getItem("studentToolkitTheme");
+    const savedTheme =
+        localStorage.getItem("studentToolkitTheme");
 
     if (savedTheme === "dark" || savedTheme === "light") {
         applyTheme(savedTheme);
+    } else {
+        applyTheme(getSystemTheme());
+    }
+}
+
+
+function toggleTheme() {
+    const isDark =
+        document.body.classList.contains("dark-mode");
+
+    const newTheme = isDark ? "light" : "dark";
+
+    localStorage.setItem(
+        "studentToolkitTheme",
+        newTheme
+    );
+
+    applyTheme(newTheme);
+}
+
+
+// ============================================================
+// FANCY ALERT
+// ============================================================
+
+function showFancyAlert(
+    title,
+    message,
+    icon = "✨"
+) {
+    const alertBox =
+        document.getElementById("fancyAlert");
+
+    const iconElement =
+        document.getElementById("fancyAlertIcon");
+
+    const titleElement =
+        document.getElementById("fancyAlertTitle");
+
+    const messageElement =
+        document.getElementById("fancyAlertMessage");
+
+    if (!alertBox) {
+        console.log(title, message);
         return;
     }
 
-    const prefersDark =
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (iconElement) {
+        iconElement.textContent = icon;
+    }
 
-    applyTheme(prefersDark ? "dark" : "light");
+    if (titleElement) {
+        titleElement.textContent = title;
+    }
+
+    if (messageElement) {
+        messageElement.textContent = message;
+    }
+
+    alertBox.classList.add("show");
+    alertBox.setAttribute("aria-hidden", "false");
 }
 
-// GENERAL NAVIGATION
+
+function closeFancyAlert() {
+    const alertBox =
+        document.getElementById("fancyAlert");
+
+    if (!alertBox) return;
+
+    alertBox.classList.remove("show");
+    alertBox.setAttribute("aria-hidden", "true");
+}
+
+
+// Close fancy alert when clicking outside the card
+document.addEventListener("click", function (event) {
+    const alertBox =
+        document.getElementById("fancyAlert");
+
+    const card =
+        document.querySelector(".fancy-alert-card");
+
+    if (
+        alertBox &&
+        card &&
+        event.target === alertBox
+    ) {
+        closeFancyAlert();
+    }
+});
+
+
+// ============================================================
+// NAVIGATION
 // ============================================================
 
 function hideAllTools() {
-    const toolIds = [
-        "authTool",
-        "percentageTool",
-        "marksTool",
-        "cgpaTool",
-        "timerTool",
-        "timetableTool",
-        "converterTool"
-    ];
+    const tools = document.querySelectorAll(".calculator");
 
-    toolIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.style.display = "none";
+    tools.forEach(tool => {
+        tool.style.display = "none";
     });
 }
+
 
 function showMenu() {
     hideAllTools();
 
-    const menu = document.getElementById("toolsMenu");
-    if (menu) menu.style.display = "grid";
+    const menu =
+        document.getElementById("toolMenu");
+
+    if (menu) {
+        menu.style.display = "grid";
+    }
 }
+
+
+function openTool(toolId) {
+    hideAllTools();
+
+    const tool =
+        document.getElementById(toolId);
+
+    if (tool) {
+        tool.style.display = "block";
+    }
+}
+
+
+function closeTool() {
+    showMenu();
+}
+
 
 // ============================================================
 // AUTHENTICATION
 // ============================================================
 
-let authMode = "login";
-
 function openAuth() {
+    const authTool =
+        document.getElementById("authTool");
+
+    if (!authTool) return;
+
     hideAllTools();
 
-    const authTool = document.getElementById("authTool");
-    if (authTool) authTool.style.display = "block";
+    authTool.style.display = "block";
 
-    setAuthMode("login");
+    updateAuthForm();
 }
 
-function closeAuth() {
-    const authTool = document.getElementById("authTool");
-    if (authTool) authTool.style.display = "none";
 
-    clearAuthForm();
+function closeAuth() {
     showMenu();
 }
 
-function setAuthMode(mode) {
-    authMode = mode === "signup" ? "signup" : "login";
-
-    const title = document.getElementById("authTitle");
-    const description = document.getElementById("authDescription");
-    const nameField = document.getElementById("nameField");
-    const submitButton = document.getElementById("authSubmitButton");
-    const switchButton = document.getElementById("authSwitchButton");
-    const password = document.getElementById("authPassword");
-
-    if (authMode === "signup") {
-        if (title) title.textContent = "📝 Create Account";
-        if (description) {
-            description.textContent = "Create your Student Toolkit account.";
-        }
-
-        // FIX: Show the name field during signup.
-        if (nameField) nameField.classList.remove("hidden");
-
-        if (submitButton) submitButton.textContent = "📝 Sign Up";
-        if (switchButton) {
-            switchButton.textContent = "Already have an account? Login";
-        }
-        if (password) password.autocomplete = "new-password";
-    } else {
-        if (title) title.textContent = "🔐 Login";
-        if (description) {
-            description.textContent = "Login to your Student Toolkit account.";
-        }
-
-        // Hide the name field during login.
-        if (nameField) nameField.classList.add("hidden");
-
-        if (submitButton) submitButton.textContent = "🔐 Login";
-        if (switchButton) {
-            switchButton.textContent = "Don't have an account? Sign Up";
-        }
-        if (password) password.autocomplete = "current-password";
-    }
-
-    const message = document.getElementById("authMessage");
-    if (message) message.textContent = "";
-}
 
 function toggleAuthMode() {
-    setAuthMode(authMode === "login" ? "signup" : "login");
+    authMode =
+        authMode === "login"
+            ? "signup"
+            : "login";
+
+    updateAuthForm();
 }
 
-function clearAuthForm() {
-    const name = document.getElementById("authName");
-    const email = document.getElementById("authEmail");
-    const password = document.getElementById("authPassword");
-    const message = document.getElementById("authMessage");
 
-    if (name) name.value = "";
-    if (email) email.value = "";
-    if (password) password.value = "";
-    if (message) message.textContent = "";
+function updateAuthForm() {
+    const title =
+        document.getElementById("authTitle");
+
+    const description =
+        document.getElementById("authDescription");
+
+    const nameField =
+        document.getElementById("nameField");
+
+    const submitButton =
+        document.getElementById("authSubmitButton");
+
+    const switchButton =
+        document.getElementById("authSwitchButton");
+
+    const message =
+        document.getElementById("authMessage");
+
+    if (authMode === "signup") {
+        if (title) {
+            title.textContent = "📝 Create Account";
+        }
+
+        if (description) {
+            description.textContent =
+                "Create your Student Toolkit account.";
+        }
+
+        if (nameField) {
+            nameField.hidden = false;
+            nameField.style.display = "block";
+        }
+
+        if (submitButton) {
+            submitButton.textContent =
+                "Create Account";
+        }
+
+        if (switchButton) {
+            switchButton.textContent =
+                "Already have an account? Login";
+        }
+    } else {
+        if (title) {
+            title.textContent = "🔐 Login";
+        }
+
+        if (description) {
+            description.textContent =
+                "Login to your Student Toolkit account.";
+        }
+
+        if (nameField) {
+            nameField.hidden = true;
+            nameField.style.display = "none";
+        }
+
+        if (submitButton) {
+            submitButton.textContent =
+                "Login";
+        }
+
+        if (switchButton) {
+            switchButton.textContent =
+                "Don't have an account? Sign Up";
+        }
+    }
+
+    if (message) {
+        message.textContent = "";
+    }
 }
 
-function showAuthMessage(message, isError = false) {
-    const element = document.getElementById("authMessage");
+
+function setAuthMessage(message, success = false) {
+    const element =
+        document.getElementById("authMessage");
+
     if (!element) return;
 
     element.textContent = message;
-    element.style.display = message ? "block" : "none";
-    element.classList.toggle("error", isError);
+
+    element.classList.toggle(
+        "success",
+        success
+    );
+
+    element.classList.toggle(
+        "error",
+        !success
+    );
 }
 
-async function signUpUser(email, password, name) {
-    if (!supabaseReady) {
-        showAuthMessage("Supabase is still loading. Please try again.", true);
-        return false;
-    }
-
-    if (!name.trim()) {
-        showAuthMessage("Please enter your name.", true);
-        document.getElementById("authName")?.focus();
-        return false;
-    }
-
-    if (!email.trim()) {
-        showAuthMessage("Please enter your email.", true);
-        document.getElementById("authEmail")?.focus();
-        return false;
-    }
-
-    if (!password) {
-        showAuthMessage("Please enter a password.", true);
-        document.getElementById("authPassword")?.focus();
-        return false;
-    }
-
-    if (password.length < 6) {
-        showAuthMessage("Password must be at least 6 characters.", true);
-        return false;
-    }
-
-    try {
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email.trim(),
-            password,
-            options: {
-                data: {
-                    full_name: name.trim()
-                },
-                emailRedirectTo: window.location.href
-            }
-        });
-
-        if (error) {
-            showAuthMessage(error.message, true);
-            return false;
-        }
-
-        if (data.user && !data.session) {
-            showAuthMessage(
-                "Account created! 📧 Check your email and confirm your account before logging in."
-            );
-        } else {
-            showAuthMessage("Account created successfully! 🎉");
-        }
-
-        return true;
-    } catch (error) {
-        console.error("Signup error:", error);
-        showAuthMessage("Something went wrong while creating your account.", true);
-        return false;
-    }
-}
-
-async function loginUser(email, password) {
-    if (!supabaseReady) {
-        showAuthMessage("Supabase is still loading. Please try again.", true);
-        return false;
-    }
-
-    if (!email.trim()) {
-        showAuthMessage("Please enter your email.", true);
-        return false;
-    }
-
-    if (!password) {
-        showAuthMessage("Please enter your password.", true);
-        return false;
-    }
-
-    try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email.trim(),
-            password
-        });
-
-        if (error) {
-            showAuthMessage(error.message, true);
-            return false;
-        }
-
-        showAuthMessage("Welcome back! 🎉");
-        updateAuthUI(data.user);
-        return true;
-    } catch (error) {
-        console.error("Login error:", error);
-        showAuthMessage("Something went wrong while logging in.", true);
-        return false;
-    }
-}
 
 async function submitAuth() {
-    const name = document.getElementById("authName")?.value || "";
-    const email = document.getElementById("authEmail")?.value || "";
-    const password = document.getElementById("authPassword")?.value || "";
-    const button = document.getElementById("authSubmitButton");
+    if (!supabaseClient) {
+        setAuthMessage(
+            "Authentication is still loading. Please try again."
+        );
+        return;
+    }
 
-    if (button) button.disabled = true;
+    const email =
+        document.getElementById("authEmail")?.value.trim();
+
+    const password =
+        document.getElementById("authPassword")?.value;
+
+    const name =
+        document.getElementById("authName")?.value.trim();
+
+    if (!email || !password) {
+        setAuthMessage(
+            "Please enter your email and password."
+        );
+        return;
+    }
+
+    if (authMode === "signup" && !name) {
+        setAuthMessage(
+            "Please enter your name."
+        );
+        return;
+    }
 
     try {
+        setAuthMessage("Please wait...", true);
+
         if (authMode === "signup") {
-            await signUpUser(email, password, name);
+            const { data, error } =
+                await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: name
+                        }
+                    }
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            if (data.user && !data.session) {
+                setAuthMessage(
+                    "Account created! Check your email to confirm your account.",
+                    true
+                );
+            } else {
+                setAuthMessage(
+                    "Account created successfully! 🎉",
+                    true
+                );
+            }
         } else {
-            await loginUser(email, password);
+            const { error } =
+                await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            setAuthMessage(
+                "Login successful! 🎉",
+                true
+            );
+
+            await checkLoggedInUser();
         }
-    } finally {
-        if (button) button.disabled = false;
+    } catch (error) {
+        console.error("Authentication error:", error);
+
+        setAuthMessage(
+            error.message ||
+            "Something went wrong. Please try again."
+        );
     }
 }
 
-async function logoutUser() {
-    if (!supabaseReady) return;
+
+async function logout() {
+    if (!supabaseClient) return;
 
     try {
-        const { error } = await supabaseClient.auth.signOut();
+        const { error } =
+            await supabaseClient.auth.signOut();
 
         if (error) {
-            console.error("Logout error:", error);
-            return;
+            throw error;
         }
 
         updateAuthUI(null);
-        showMenu();
+
+        showFancyAlert(
+            "Logged out",
+            "You have been safely logged out.",
+            "👋"
+        );
     } catch (error) {
         console.error("Logout error:", error);
+
+        showFancyAlert(
+            "Logout failed",
+            "Something went wrong while logging out.",
+            "⚠️"
+        );
     }
 }
 
-async function getCurrentUser() {
-    if (!supabaseReady) return null;
-
-    const { data, error } = await supabaseClient.auth.getUser();
-    if (error) return null;
-
-    return data?.user || null;
-}
 
 function updateAuthUI(user) {
-    const statusText = document.getElementById("authStatusText");
-    const authButton = document.getElementById("authButton");
+    const status =
+        document.getElementById("authStatusText");
+
+    const button =
+        document.getElementById("authButton");
+
+    if (!status || !button) return;
 
     if (user) {
-        if (statusText) {
-            statusText.textContent = `Logged in: ${user.email}`;
-        }
+        const name =
+            user.user_metadata?.full_name ||
+            user.email?.split("@")[0] ||
+            "Student";
 
-        if (authButton) {
-            authButton.textContent = "🚪 Logout";
-            authButton.onclick = logoutUser;
-        }
+        status.textContent =
+            `👋 Hi, ${name}`;
+
+        button.textContent =
+            "🚪 Logout";
+
+        button.onclick = logout;
     } else {
-        if (statusText) {
-            statusText.textContent = "Not logged in";
-        }
+        status.textContent =
+            "Not logged in";
 
-        if (authButton) {
-            authButton.textContent = "🔐 Login / Sign Up";
-            authButton.onclick = openAuth;
-        }
+        button.textContent =
+            "🔐 Login / Sign Up";
+
+        button.onclick = openAuth;
     }
 }
 
+
 async function checkLoggedInUser() {
-    if (!supabaseReady) return;
+    if (!supabaseClient) return;
 
     try {
-        const { data, error } = await supabaseClient.auth.getUser();
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.getUser();
 
-        if (error || !data?.user) {
+        if (error) {
             updateAuthUI(null);
             return;
         }
 
-        updateAuthUI(data.user);
+        updateAuthUI(data.user || null);
     } catch (error) {
-        console.error("Could not check user:", error);
+        console.error(
+            "Checking logged-in user failed:",
+            error
+        );
+
         updateAuthUI(null);
     }
 }
 
-function setupAuthListener() {
-    if (!supabaseReady) return;
 
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        console.log("Auth event:", event);
-        updateAuthUI(session?.user || null);
-    });
+function setupAuthListener() {
+    if (!supabaseClient) return;
+
+    supabaseClient.auth.onAuthStateChange(
+        (_event, session) => {
+            updateAuthUI(
+                session?.user || null
+            );
+        }
+    );
 }
+
 
 // ============================================================
 // PERCENTAGE CALCULATOR
 // ============================================================
 
 function openPercentage() {
-    hideAllTools();
-    document.getElementById("percentageTool").style.display = "block";
+    openTool("percentageTool");
 }
 
-function closePercentage() {
-    document.getElementById("percentageTool").style.display = "none";
-    showMenu();
-}
 
 function calculatePercentage() {
-    const percentageInput = document.getElementById("percentage");
-    const numberInput = document.getElementById("number");
-    const result = document.getElementById("percentageResult");
+    const value =
+        Number(
+            document.getElementById("percentageValue")?.value
+        );
 
-    if (!percentageInput || !numberInput || !result) return;
+    const total =
+        Number(
+            document.getElementById("percentageTotal")?.value
+        );
 
-    if (percentageInput.value === "" || numberInput.value === "") {
-        result.textContent = "Please enter both numbers.";
+    const result =
+        document.getElementById("percentageResult");
+
+    if (!result) return;
+
+    if (
+        !Number.isFinite(value) ||
+        !Number.isFinite(total)
+    ) {
+        result.textContent =
+            "Please enter valid numbers.";
+
         return;
     }
 
-    const percentage = Number(percentageInput.value);
-    const number = Number(numberInput.value);
+    if (total === 0) {
+        result.textContent =
+            "Total cannot be zero.";
 
-    if (!Number.isFinite(percentage) || !Number.isFinite(number)) {
-        result.textContent = "Please enter valid numbers.";
         return;
     }
 
-    const answer = (percentage / 100) * number;
-    result.textContent = `${percentage}% of ${number} = ${answer}`;
+    const percentage =
+        (value / total) * 100;
+
+    result.textContent =
+        `${percentage.toFixed(2)}%`;
 }
+
 
 // ============================================================
 // MARKS CALCULATOR
 // ============================================================
 
-let subjectCount = 0;
-
 function openMarks() {
-    hideAllTools();
-    document.getElementById("marksTool").style.display = "block";
-
-    if (document.querySelectorAll("#subjects .subject-row").length === 0) {
-        addSubject();
-        addSubject();
-        addSubject();
-    }
+    openTool("marksTool");
 }
 
-function closeMarks() {
-    document.getElementById("marksTool").style.display = "none";
-    showMenu();
-}
-
-function addSubject() {
-    subjectCount++;
-
-    const container = document.getElementById("subjects");
-    if (!container) return;
-
-    const row = document.createElement("div");
-    row.className = "subject-row";
-
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.placeholder = `Subject ${subjectCount}`;
-    nameInput.className = "subject-name";
-
-    const marksInput = document.createElement("input");
-    marksInput.type = "number";
-    marksInput.placeholder = "Marks";
-    marksInput.className = "marks";
-    marksInput.min = "0";
-    marksInput.max = "100";
-
-    const removeButton = document.createElement("button");
-    removeButton.className = "remove-subject";
-    removeButton.type = "button";
-    removeButton.textContent = "✕";
-    removeButton.onclick = () => row.remove();
-
-    row.appendChild(nameInput);
-    row.appendChild(marksInput);
-    row.appendChild(removeButton);
-    container.appendChild(row);
-}
-
-function removeSubject(button) {
-    button?.parentElement?.remove();
-}
 
 function calculateMarks() {
-    const marksInputs = document.querySelectorAll("#subjects .marks");
-    const result = document.getElementById("marksResult");
+    const marks =
+        Number(
+            document.getElementById("marksObtained")?.value
+        );
+
+    const total =
+        Number(
+            document.getElementById("marksTotal")?.value
+        );
+
+    const result =
+        document.getElementById("marksResult");
 
     if (!result) return;
 
-    let total = 0;
-    let subjects = 0;
+    if (
+        !Number.isFinite(marks) ||
+        !Number.isFinite(total)
+    ) {
+        result.textContent =
+            "Please enter valid marks.";
 
-    marksInputs.forEach(input => {
-        if (input.value === "") return;
-
-        const value = Number(input.value);
-        if (Number.isFinite(value) && value >= 0 && value <= 100) {
-            total += value;
-            subjects++;
-        }
-    });
-
-    if (subjects === 0) {
-        result.innerHTML = "<p>Please enter your marks first.</p>";
         return;
     }
 
-    const maximum = subjects * 100;
-    const percentage = (total / maximum) * 100;
+    if (total <= 0) {
+        result.textContent =
+            "Total marks must be greater than zero.";
 
-    let grade;
-    if (percentage >= 90) grade = "A+ 🏆";
-    else if (percentage >= 80) grade = "A 🔥";
-    else if (percentage >= 70) grade = "B 👍";
-    else if (percentage >= 60) grade = "C 🙂";
-    else if (percentage >= 50) grade = "D";
-    else grade = "F";
+        return;
+    }
 
-    result.innerHTML = `
-        <h3>📊 Your Result</h3>
-        <p>Subjects: <strong>${subjects}</strong></p>
-        <p>Total: <strong>${total} / ${maximum}</strong></p>
-        <p>Percentage: <strong>${percentage.toFixed(2)}%</strong></p>
-        <p>Grade: <strong>${grade}</strong></p>
-    `;
+    if (marks < 0 || marks > total) {
+        result.textContent =
+            "Obtained marks must be between 0 and total marks.";
+
+        return;
+    }
+
+    const percentage =
+        (marks / total) * 100;
+
+    result.textContent =
+        `${percentage.toFixed(2)}%`;
 }
+
 
 // ============================================================
 // CGPA CALCULATOR
 // ============================================================
 
-let cgpaSubjectCount = 0;
-
 function openCGPA() {
-    hideAllTools();
-    document.getElementById("cgpaTool").style.display = "block";
-
-    if (document.querySelectorAll("#cgpaSubjects .cgpa-row").length === 0) {
-        addCGPASubject();
-        addCGPASubject();
-        addCGPASubject();
-    }
+    openTool("cgpaTool");
 }
 
-function closeCGPA() {
-    document.getElementById("cgpaTool").style.display = "none";
-    showMenu();
-}
-
-function addCGPASubject() {
-    cgpaSubjectCount++;
-
-    const container = document.getElementById("cgpaSubjects");
-    if (!container) return;
-
-    const row = document.createElement("div");
-    row.className = "cgpa-row";
-
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.placeholder = `Subject ${cgpaSubjectCount}`;
-
-    const gradeInput = document.createElement("input");
-    gradeInput.type = "number";
-    gradeInput.className = "grade-point";
-    gradeInput.placeholder = "Grade Point";
-    gradeInput.min = "0";
-    gradeInput.max = "10";
-    gradeInput.step = "0.1";
-
-    const removeButton = document.createElement("button");
-    removeButton.className = "remove-subject";
-    removeButton.type = "button";
-    removeButton.textContent = "✕";
-    removeButton.onclick = () => row.remove();
-
-    row.appendChild(nameInput);
-    row.appendChild(gradeInput);
-    row.appendChild(removeButton);
-    container.appendChild(row);
-}
 
 function calculateCGPA() {
-    const inputs = document.querySelectorAll("#cgpaSubjects .grade-point");
-    const result = document.getElementById("cgpaResult");
+    const inputs =
+        document.querySelectorAll(
+            ".cgpa-input"
+        );
+
+    const result =
+        document.getElementById("cgpaResult");
 
     if (!result) return;
+
+    if (!inputs.length) {
+        result.textContent =
+            "Add your grade points first.";
+
+        return;
+    }
 
     let total = 0;
     let count = 0;
 
     inputs.forEach(input => {
-        if (input.value === "") return;
+        const value =
+            Number(input.value);
 
-        const value = Number(input.value);
-        if (Number.isFinite(value) && value >= 0 && value <= 10) {
+        if (
+            input.value.trim() !== "" &&
+            Number.isFinite(value)
+        ) {
             total += value;
             count++;
         }
     });
 
     if (count === 0) {
-        result.innerHTML = "<p>Please enter your grade points.</p>";
+        result.textContent =
+            "Please enter at least one grade point.";
+
         return;
     }
 
-    const cgpa = total / count;
+    const cgpa =
+        total / count;
 
-    result.innerHTML = `
-        <h3>🎯 Your Result</h3>
-        <p>Subjects: <strong>${count}</strong></p>
-        <p>CGPA: <strong>${cgpa.toFixed(2)}</strong></p>
-    `;
+    result.textContent =
+        `CGPA: ${cgpa.toFixed(2)}`;
 }
+
 
 // ============================================================
 // STUDY TIMER
 // ============================================================
 
-let timerSeconds = 25 * 60;
-let timerInterval = null;
-let timerRunning = false;
-
 function openTimer() {
-    hideAllTools();
-    document.getElementById("timerTool").style.display = "block";
+    openTool("timerTool");
+
     updateTimerDisplay();
 }
 
-function closeTimer() {
-    pauseTimer();
-    document.getElementById("timerTool").style.display = "none";
-    showMenu();
-}
 
 function updateTimerDisplay() {
-    const display = document.getElementById("timerDisplay");
+    const display =
+        document.getElementById("timerDisplay");
+
     if (!display) return;
 
-    const minutes = Math.floor(timerSeconds / 60);
-    const seconds = timerSeconds % 60;
+    const minutes =
+        Math.floor(timerSeconds / 60);
 
-    display.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    const seconds =
+        timerSeconds % 60;
+
+    display.textContent =
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+
 function startTimer() {
-    if (timerRunning || timerSeconds <= 0) return;
+    if (timerRunning) return;
 
     timerRunning = true;
 
-    const message = document.getElementById("timerMessage");
-    if (message) message.textContent = "Focus mode activated! 🔥";
+    timerInterval =
+        setInterval(() => {
+            if (timerSeconds > 0) {
+                timerSeconds--;
 
-    timerInterval = setInterval(() => {
-        timerSeconds--;
-        updateTimerDisplay();
+                updateTimerDisplay();
+            } else {
+                stopTimer();
 
-        if (timerSeconds <= 0) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            timerRunning = false;
-
-            if (message) message.textContent = "🎉 Time's up! Great work!";
-            showFancyAlert("Your study session is complete. Great work! 🎉", "Session Complete!", "🎉", "Awesome! 🚀");
-        }
-    }, 1000);
+                showFancyAlert(
+                    "Time's up! ⏰",
+                    "Great job! Your study session is complete.",
+                    "🎉"
+                );
+            }
+        }, 1000);
 }
 
-function pauseTimer() {
-    clearInterval(timerInterval);
-    timerInterval = null;
+
+function stopTimer() {
     timerRunning = false;
 
-    const message = document.getElementById("timerMessage");
-    if (message) message.textContent = "Timer paused ⏸️";
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
 }
+
 
 function resetTimer() {
-    clearInterval(timerInterval);
-    timerInterval = null;
-    timerRunning = false;
-    timerSeconds = 25 * 60;
-    updateTimerDisplay();
+    stopTimer();
 
-    const message = document.getElementById("timerMessage");
-    if (message) message.textContent = "Ready for another session! 💪";
+    timerSeconds = 25 * 60;
+
+    updateTimerDisplay();
 }
 
-function setCustomTimer() {
-    const input = document.getElementById("timerMinutes");
-    if (!input) return;
 
-    const minutes = Number(input.value);
+function setTimer(minutes) {
+    stopTimer();
 
-    if (!Number.isFinite(minutes) || minutes < 1 || minutes > 180) {
-        showFancyAlert("Please enter a study time between 1 and 180 minutes.", "Invalid Time", "⏱️", "Try Again");
+    const value =
+        Number(minutes);
+
+    if (
+        !Number.isFinite(value) ||
+        value <= 0
+    ) {
         return;
     }
 
-    clearInterval(timerInterval);
-    timerInterval = null;
-    timerRunning = false;
-    timerSeconds = Math.floor(minutes * 60);
+    timerSeconds =
+        Math.floor(value * 60);
+
     updateTimerDisplay();
-
-    input.value = "";
-
-    const message = document.getElementById("timerMessage");
-    if (message) message.textContent = `${minutes} minute timer set! 🎯`;
 }
 
+
 // ============================================================
-// STUDY TIMETABLE
+// TIMETABLE
 // ============================================================
 
-let timetableEntries = [];
+function openTimetable() {
+    hideAllTools();
 
-try {
-    timetableEntries = JSON.parse(
-        localStorage.getItem("studentToolkitTimetable") || "[]"
-    );
-    if (!Array.isArray(timetableEntries)) timetableEntries = [];
-} catch (error) {
-    console.warn("Could not load timetable:", error);
-    timetableEntries = [];
+    const tool =
+        document.getElementById("timetableTool");
+
+    if (tool) {
+        tool.style.display = "block";
+    }
+
+    renderTimetable();
+
+    if (timetableIsEmpty()) {
+        showFancyAlert(
+            "Almost there! 📅",
+            "Your timetable is empty. Add your first study session to get started! 📚✨",
+            "📚"
+        );
+    }
 }
+
+
+function timetableIsEmpty() {
+    return timetableEntries.length === 0;
+}
+
 
 function saveTimetable() {
     localStorage.setItem(
@@ -753,127 +857,238 @@ function saveTimetable() {
     );
 }
 
-function openTimetable() {
-    hideAllTools();
-    document.getElementById("timetableTool").style.display = "block";
-    displayTimetable();
-}
 
-function closeTimetable() {
-    document.getElementById("timetableTool").style.display = "none";
-    showMenu();
-}
+function loadTimetable() {
+    try {
+        const saved =
+            localStorage.getItem(
+                "studentToolkitTimetable"
+            );
 
-function addTimetableEntry() {
-    const day = document.getElementById("timetableDay")?.value || "";
-    const time = document.getElementById("timetableTime")?.value || "";
-    const subject = document.getElementById("timetableSubject")?.value.trim() || "";
-
-    if (!day || !time || !subject) {
-        showFancyAlert("Please select a day, choose a time and enter a subject.", "Almost There!", "📚", "Got It ✨");
-        return;
-    }
-
-    timetableEntries.push({ day, time, subject });
-    saveTimetable();
-    displayTimetable();
-
-    document.getElementById("timetableDay").value = "";
-    document.getElementById("timetableTime").value = "";
-    document.getElementById("timetableSubject").value = "";
-}
-
-function deleteTimetableEntry(index) {
-    if (index < 0 || index >= timetableEntries.length) return;
-
-    timetableEntries.splice(index, 1);
-    saveTimetable();
-    displayTimetable();
-}
-
-function clearTimetable() {
-    if (timetableEntries.length === 0) return;
-
-    const confirmed = confirm("Clear your entire study timetable?");
-    if (!confirmed) return;
-
-    timetableEntries = [];
-    saveTimetable();
-    displayTimetable();
-}
-
-function displayTimetable() {
-    const days = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
-    ];
-
-    const dayOrder = {
-        Monday: 1,
-        Tuesday: 2,
-        Wednesday: 3,
-        Thursday: 4,
-        Friday: 5,
-        Saturday: 6,
-        Sunday: 7
-    };
-
-    days.forEach(day => {
-        const container = document.getElementById(`${day}Sessions`);
-        if (container) container.innerHTML = "";
-    });
-
-    const sortedEntries = timetableEntries
-        .map((entry, index) => ({ ...entry, originalIndex: index }))
-        .sort((a, b) => {
-            const dayDifference = (dayOrder[a.day] || 99) - (dayOrder[b.day] || 99);
-            if (dayDifference !== 0) return dayDifference;
-            return String(a.time).localeCompare(String(b.time));
-        });
-
-    days.forEach(day => {
-        const container = document.getElementById(`${day}Sessions`);
-        if (!container) return;
-
-        const dayEntries = sortedEntries.filter(entry => entry.day === day);
-
-        if (dayEntries.length === 0) {
-            const empty = document.createElement("div");
-            empty.className = "empty-day";
-            empty.textContent = "No sessions";
-            container.appendChild(empty);
+        if (!saved) {
+            timetableEntries = [];
             return;
         }
 
-        dayEntries.forEach(entry => {
-            const card = document.createElement("div");
-            card.className = "session-card";
+        const parsed =
+            JSON.parse(saved);
 
-            const time = document.createElement("strong");
-            time.textContent = entry.time;
+        if (Array.isArray(parsed)) {
+            timetableEntries = parsed;
+        } else {
+            timetableEntries = [];
+        }
+    } catch (error) {
+        console.error(
+            "Could not load timetable:",
+            error
+        );
 
-            const subject = document.createElement("span");
-            subject.textContent = entry.subject;
+        timetableEntries = [];
+    }
+}
 
-            const deleteButton = document.createElement("button");
-            deleteButton.type = "button";
-            deleteButton.className = "delete-session";
-            deleteButton.textContent = "🗑️";
-            deleteButton.title = "Delete session";
-            deleteButton.onclick = () => deleteTimetableEntry(entry.originalIndex);
 
-            card.appendChild(time);
-            card.appendChild(subject);
-            card.appendChild(deleteButton);
-            container.appendChild(card);
+function addTimetableEntry() {
+    const day =
+        document.getElementById("timetableDay")?.value;
+
+    const time =
+        document.getElementById("timetableTime")?.value;
+
+    const subject =
+        document.getElementById("timetableSubject")?.value.trim();
+
+    if (!day || !time || !subject) {
+        showFancyAlert(
+            "Almost there! 📅",
+            "Please choose a day, time, and subject.",
+            "⚠️"
+        );
+
+        return;
+    }
+
+    const entry = {
+        id:
+            Date.now().toString() +
+            Math.random().toString(36).slice(2),
+
+        day,
+        time,
+        subject
+    };
+
+    timetableEntries.push(entry);
+
+    timetableEntries.sort((a, b) => {
+        const dayA =
+            timetableDays.indexOf(a.day);
+
+        const dayB =
+            timetableDays.indexOf(b.day);
+
+        if (dayA !== dayB) {
+            return dayA - dayB;
+        }
+
+        return a.time.localeCompare(b.time);
+    });
+
+    saveTimetable();
+    renderTimetable();
+
+    const subjectInput =
+        document.getElementById("timetableSubject");
+
+    if (subjectInput) {
+        subjectInput.value = "";
+    }
+
+    showFancyAlert(
+        "Session added! 🎉",
+        `${subject} has been added to your timetable.`,
+        "📚"
+    );
+}
+
+
+function renderTimetable() {
+    timetableDays.forEach(day => {
+        const container =
+            document.getElementById(
+                `${day}Sessions`
+            );
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        const sessions =
+            timetableEntries
+                .filter(entry => entry.day === day)
+                .sort((a, b) =>
+                    a.time.localeCompare(b.time)
+                );
+
+        if (sessions.length === 0) {
+            const empty =
+                document.createElement("div");
+
+            empty.className = "empty-day";
+            empty.textContent =
+                "No sessions yet";
+
+            container.appendChild(empty);
+
+            return;
+        }
+
+        sessions.forEach(entry => {
+            const session =
+                document.createElement("div");
+
+            session.className =
+                "session-card";
+
+            const time =
+                document.createElement("div");
+
+            time.className =
+                "session-time";
+
+            time.textContent =
+                entry.time;
+
+            const subject =
+                document.createElement("div");
+
+            subject.className =
+                "session-subject";
+
+            subject.textContent =
+                entry.subject;
+
+            const removeButton =
+                document.createElement("button");
+
+            removeButton.className =
+                "remove-session";
+
+            removeButton.type =
+                "button";
+
+            removeButton.textContent =
+                "✕";
+
+            removeButton.setAttribute(
+                "aria-label",
+                `Remove ${entry.subject}`
+            );
+
+            removeButton.onclick = () => {
+                removeTimetableEntry(
+                    entry.id
+                );
+            };
+
+            session.appendChild(time);
+            session.appendChild(subject);
+            session.appendChild(removeButton);
+
+            container.appendChild(session);
         });
     });
 }
+
+
+function removeTimetableEntry(id) {
+    const entry =
+        timetableEntries.find(
+            item => item.id === id
+        );
+
+    timetableEntries =
+        timetableEntries.filter(
+            item => item.id !== id
+        );
+
+    saveTimetable();
+    renderTimetable();
+
+    if (entry) {
+        showFancyAlert(
+            "Session removed",
+            `${entry.subject} was removed from your timetable.`,
+            "🗑️"
+        );
+    }
+}
+
+
+function clearTimetable() {
+    if (timetableEntries.length === 0) {
+        showFancyAlert(
+            "Nothing to clear",
+            "Your timetable is already empty. Add a study session first! 📚",
+            "📅"
+        );
+
+        return;
+    }
+
+    timetableEntries = [];
+
+    saveTimetable();
+    renderTimetable();
+
+    showFancyAlert(
+        "Timetable cleared",
+        "Your whole timetable has been cleared. You can start fresh whenever you're ready! ✨",
+        "🧹"
+    );
+}
+
 
 // ============================================================
 // UNIT CONVERTER
@@ -881,167 +1096,394 @@ function displayTimetable() {
 
 const converterUnits = {
     length: {
-        meter: { name: "Meters", factor: 1 },
-        kilometer: { name: "Kilometers", factor: 1000 },
-        centimeter: { name: "Centimeters", factor: 0.01 },
-        millimeter: { name: "Millimeters", factor: 0.001 },
-        mile: { name: "Miles", factor: 1609.344 },
-        yard: { name: "Yards", factor: 0.9144 },
-        foot: { name: "Feet", factor: 0.3048 },
-        inch: { name: "Inches", factor: 0.0254 }
+        meter: "Meter",
+        kilometer: "Kilometer",
+        centimeter: "Centimeter",
+        millimeter: "Millimeter",
+        mile: "Mile",
+        yard: "Yard",
+        foot: "Foot",
+        inch: "Inch"
     },
+
     weight: {
-        kilogram: { name: "Kilograms", factor: 1 },
-        gram: { name: "Grams", factor: 0.001 },
-        milligram: { name: "Milligrams", factor: 0.000001 },
-        pound: { name: "Pounds", factor: 0.45359237 },
-        ounce: { name: "Ounces", factor: 0.028349523125 }
+        kilogram: "Kilogram",
+        gram: "Gram",
+        milligram: "Milligram",
+        pound: "Pound",
+        ounce: "Ounce"
     },
-    volume: {
-        liter: { name: "Liters", factor: 1 },
-        milliliter: { name: "Milliliters", factor: 0.001 },
-        cubicMeter: { name: "Cubic Meters", factor: 1000 },
-        gallon: { name: "US Gallons", factor: 3.785411784 },
-        cup: { name: "US Cups", factor: 0.2365882365 }
-    },
+
     temperature: {
-        celsius: { name: "Celsius" },
-        fahrenheit: { name: "Fahrenheit" },
-        kelvin: { name: "Kelvin" }
+        celsius: "Celsius",
+        fahrenheit: "Fahrenheit",
+        kelvin: "Kelvin"
+    },
+
+    volume: {
+        liter: "Liter",
+        milliliter: "Milliliter",
+        gallon: "Gallon",
+        cup: "Cup"
     }
 };
 
-function updateConverterUnits() {
-    const category = document.getElementById("converterCategory")?.value || "length";
-    const from = document.getElementById("converterFrom");
-    const to = document.getElementById("converterTo");
 
-    if (!from || !to) return;
+function openConverter() {
+    hideAllTools();
+
+    const tool =
+        document.getElementById("converterTool");
+
+    if (tool) {
+        tool.style.display = "block";
+    }
+
+    updateConverterUnits();
+}
+
+
+function closeConverter() {
+    showMenu();
+}
+
+
+function updateConverterUnits() {
+    const category =
+        document.getElementById(
+            "converterCategory"
+        )?.value;
+
+    const from =
+        document.getElementById(
+            "converterFrom"
+        );
+
+    const to =
+        document.getElementById(
+            "converterTo"
+        );
+
+    if (!category || !from || !to) {
+        return;
+    }
+
+    const units =
+        converterUnits[category];
+
+    if (!units) return;
 
     from.innerHTML = "";
     to.innerHTML = "";
 
-    Object.entries(converterUnits[category]).forEach(([key, unit]) => {
-        const fromOption = document.createElement("option");
-        fromOption.value = key;
-        fromOption.textContent = unit.name;
-        from.appendChild(fromOption);
+    Object.entries(units).forEach(
+        ([value, label]) => {
+            const fromOption =
+                document.createElement("option");
 
-        const toOption = document.createElement("option");
-        toOption.value = key;
-        toOption.textContent = unit.name;
-        to.appendChild(toOption);
-    });
+            fromOption.value =
+                value;
 
-    if (to.options.length > 1) to.selectedIndex = 1;
+            fromOption.textContent =
+                label;
+
+            const toOption =
+                document.createElement("option");
+
+            toOption.value =
+                value;
+
+            toOption.textContent =
+                label;
+
+            from.appendChild(
+                fromOption
+            );
+
+            to.appendChild(
+                toOption
+            );
+        }
+    );
+
+    if (to.options.length > 1) {
+        to.selectedIndex = 1;
+    }
 
     convertUnits();
 }
 
-function convertTemperature(value, from, to) {
-    let celsius;
 
-    if (from === "celsius") celsius = value;
-    else if (from === "fahrenheit") celsius = (value - 32) * 5 / 9;
-    else celsius = value - 273.15;
+function swapUnits() {
+    const from =
+        document.getElementById(
+            "converterFrom"
+        );
 
-    if (to === "celsius") return celsius;
-    if (to === "fahrenheit") return (celsius * 9 / 5) + 32;
-    return celsius + 273.15;
+    const to =
+        document.getElementById(
+            "converterTo"
+        );
+
+    if (!from || !to) return;
+
+    const oldFrom =
+        from.value;
+
+    from.value =
+        to.value;
+
+    to.value =
+        oldFrom;
+
+    convertUnits();
 }
 
+
 function convertUnits() {
-    const category = document.getElementById("converterCategory")?.value || "length";
-    const valueInput = document.getElementById("converterValue");
-    const from = document.getElementById("converterFrom")?.value;
-    const to = document.getElementById("converterTo")?.value;
-    const result = document.getElementById("converterResult");
+    const category =
+        document.getElementById(
+            "converterCategory"
+        )?.value;
 
-    if (!valueInput || !result || !from || !to) return;
+    const valueInput =
+        document.getElementById(
+            "converterValue"
+        );
 
-    if (valueInput.value === "") {
-        result.textContent = "Enter a value to convert.";
+    const from =
+        document.getElementById(
+            "converterFrom"
+        );
+
+    const to =
+        document.getElementById(
+            "converterTo"
+        );
+
+    const result =
+        document.getElementById(
+            "converterResult"
+        );
+
+    if (
+        !category ||
+        !valueInput ||
+        !from ||
+        !to ||
+        !result
+    ) {
         return;
     }
 
-    const value = Number(valueInput.value);
+    if (valueInput.value === "") {
+        result.textContent =
+            "Enter a value to convert.";
+
+        return;
+    }
+
+    const value =
+        Number(valueInput.value);
+
     if (!Number.isFinite(value)) {
-        result.textContent = "Please enter a valid number.";
+        result.textContent =
+            "Please enter a valid number.";
+
         return;
     }
 
     let converted;
 
-    if (category === "temperature") {
-        converted = convertTemperature(value, from, to);
-    } else {
-        const units = converterUnits[category];
-        const baseValue = value * units[from].factor;
-        converted = baseValue / units[to].factor;
+    if (category === "length") {
+        converted =
+            convertLength(
+                value,
+                from.value,
+                to.value
+            );
+    } else if (category === "weight") {
+        converted =
+            convertWeight(
+                value,
+                from.value,
+                to.value
+            );
+    } else if (category === "temperature") {
+        converted =
+            convertTemperature(
+                value,
+                from.value,
+                to.value
+            );
+    } else if (category === "volume") {
+        converted =
+            convertVolume(
+                value,
+                from.value,
+                to.value
+            );
     }
 
-    const fromName = converterUnits[category][from].name;
-    const toName = converterUnits[category][to].name;
+    const fromName =
+        converterUnits[category][from.value]
+        || from.value;
 
-    result.textContent = `${value} ${fromName} = ${Number(converted.toFixed(8))} ${toName}`;
+    const toName =
+        converterUnits[category][to.value]
+        || to.value;
+
+    result.textContent =
+        `${value} ${fromName} = ${formatNumber(converted)} ${toName}`;
 }
 
-function swapUnits() {
-    const from = document.getElementById("converterFrom");
-    const to = document.getElementById("converterTo");
 
-    if (!from || !to) return;
+function formatNumber(value) {
+    if (!Number.isFinite(value)) {
+        return "Invalid";
+    }
 
-    const oldFrom = from.value;
-    from.value = to.value;
-    to.value = oldFrom;
-
-    convertUnits();
+    return Number(
+        value.toFixed(8)
+    ).toString();
 }
 
-function openConverter() {
-    hideAllTools();
-    document.getElementById("converterTool").style.display = "block";
-    updateConverterUnits();
+
+function convertLength(
+    value,
+    from,
+    to
+) {
+    const meters = {
+        meter: 1,
+        kilometer: 1000,
+        centimeter: 0.01,
+        millimeter: 0.001,
+        mile: 1609.344,
+        yard: 0.9144,
+        foot: 0.3048,
+        inch: 0.0254
+    };
+
+    return (
+        value * meters[from]
+    ) / meters[to];
 }
 
-function closeConverter() {
-    document.getElementById("converterTool").style.display = "none";
-    showMenu();
+
+function convertWeight(
+    value,
+    from,
+    to
+) {
+    const grams = {
+        kilogram: 1000,
+        gram: 1,
+        milligram: 0.001,
+        pound: 453.59237,
+        ounce: 28.349523125
+    };
+
+    return (
+        value * grams[from]
+    ) / grams[to];
 }
+
+
+function convertTemperature(
+    value,
+    from,
+    to
+) {
+    let celsius;
+
+    if (from === "celsius") {
+        celsius = value;
+    } else if (from === "fahrenheit") {
+        celsius =
+            (value - 32) * 5 / 9;
+    } else {
+        celsius =
+            value - 273.15;
+    }
+
+    if (to === "celsius") {
+        return celsius;
+    }
+
+    if (to === "fahrenheit") {
+        return (
+            celsius * 9 / 5 + 32
+        );
+    }
+
+    return celsius + 273.15;
+}
+
+
+function convertVolume(
+    value,
+    from,
+    to
+) {
+    const liters = {
+        liter: 1,
+        milliliter: 0.001,
+        gallon: 3.785411784,
+        cup: 0.2365882365
+    };
+
+    return (
+        value * liters[from]
+    ) / liters[to];
+}
+
+
+// ============================================================
+// KEYBOARD / ESCAPE
+// ============================================================
+
+document.addEventListener(
+    "keydown",
+    event => {
+        if (event.key === "Escape") {
+            closeFancyAlert();
+        }
+    }
+);
+
 
 // ============================================================
 // INITIALIZATION
 // ============================================================
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Start with the menu visible.
-    showMenu();
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+        initializeTheme();
 
-    // Prepare the converter dropdowns.
-    updateConverterUnits();
-    displayTimetable();
+        loadTimetable();
+        renderTimetable();
 
-    // Connect authentication.
-    loadSupabase()
-        .then(() => {
-            console.log("✅ Student Toolkit + Supabase ready!");
-            updateAuthUI(null);
+        showMenu();
+
+        try {
+            await loadSupabase();
+
             setupAuthListener();
-            checkLoggedInUser();
-        })
-        .catch(error => {
-            console.error("Supabase connection error:", error);
+
+            await checkLoggedInUser();
+        } catch (error) {
+            console.error(
+                "Supabase initialization error:",
+                error
+            );
+
             updateAuthUI(null);
-        });
+        }
 
-    // Pressing Enter in the auth form submits it.
-    ["authName", "authEmail", "authPassword"].forEach(id => {
-        const input = document.getElementById(id);
-        if (!input) return;
+        updateTimerDisplay();
 
-        input.addEventListener("keydown", event => {
-            if (event.key === "Enter") submitAuth();
-        });
-    });
-});
+        updateConverterUnits();
+    }
+);
