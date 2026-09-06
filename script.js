@@ -1695,3 +1695,40 @@ function clearCountdown() {
         result.innerHTML = "Enter an exam name and date to begin.";
     }
 }
+
+
+/* =========================
+   FANCY ALERT BRIDGE
+   ========================= */
+
+function showFancyAlert(title, message, icon = "✨") {
+    const overlay = document.getElementById("fancyAlert");
+    const titleEl = document.getElementById("fancyAlertTitle");
+    const messageEl = document.getElementById("fancyAlertMessage");
+    const iconEl = document.getElementById("fancyAlertIcon");
+
+    if (!overlay) {
+        console.warn(title + ": " + message);
+        return;
+    }
+
+    if (titleEl) titleEl.textContent = title;
+    if (messageEl) messageEl.textContent = message;
+    if (iconEl) iconEl.textContent = icon;
+
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+}
+
+function closeFancyAlert() {
+    const overlay = document.getElementById("fancyAlert");
+
+    if (!overlay) return;
+
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+}
+
+function showAlert(message) {
+    showFancyAlert("Notice", message, "⚠️");
+}
