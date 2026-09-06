@@ -1418,3 +1418,122 @@ body.dark-mode .todo-due {
         font-size: 16px;
     }
 }
+
+
+/* =========================
+   NOTES
+   ========================= */
+
+.notes-calculator {
+    max-width: 700px;
+}
+
+.notes-editor,
+.notes-search {
+    margin-top: 20px;
+}
+
+.notes-editor textarea {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.notes-search {
+    padding-top: 10px;
+}
+
+.notes-list {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.notes-empty {
+    padding: 25px;
+    text-align: center;
+    background: #f4f6fb;
+    border-radius: 16px;
+    color: #666;
+}
+
+.note-card {
+    background: #f4f6fb;
+    border-radius: 16px;
+    padding: 18px;
+}
+
+.note-card-title {
+    font-size: 19px;
+    font-weight: 800;
+    word-break: break-word;
+}
+
+.note-card-subject {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #666;
+}
+
+.note-card-content {
+    margin-top: 12px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.note-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.note-edit-button,
+.note-delete-button {
+    flex: 1;
+}
+
+.note-delete-button {
+    background: #eee !important;
+    color: #c62828 !important;
+}
+
+.notes-cancel-button {
+    background: #eee !important;
+    color: #222 !important;
+}
+
+body.dark-mode .notes-editor textarea {
+    background: #11141c !important;
+    color: #f1f3f8 !important;
+    border-color: #333846;
+}
+
+body.dark-mode .note-card,
+body.dark-mode .notes-empty {
+    background: #11141c !important;
+    color: #f1f3f8;
+}
+
+body.dark-mode .note-card-subject {
+    color: #aeb5c2;
+}
+
+body.dark-mode .note-delete-button,
+body.dark-mode .notes-cancel-button {
+    background: #292e3a !important;
+    color: #f1f3f8 !important;
+}
+
+@media (max-width: 700px) {
+    .note-card-actions {
+        flex-direction: column;
+    }
+}

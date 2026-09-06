@@ -1949,3 +1949,260 @@ function renderTodos() {
         `;
     }).join("");
 }
+
+
+/* =========================
+   NOTES
+   ========================= */
+
+const NOTES_STORAGE_KEY = "studentToolkitNotes";
+let editingNoteId = null;
+
+function getNotes() {
+    try {
+        return JSON.parse(
+            localStorage.getItem(NOTES_STORAGE_KEY)
+        ) || [];
+    } catch {
+        return [];
+    }
+}
+
+function saveNotes(notes) {
+    localStorage.setItem(
+        NOTES_STORAGE_KEY,
+        JSON.stringify(notes)
+    );
+}
+
+function openNotes() {
+    if (typeof hideAllTools === "function") {
+        hideAllTools();
+    }
+
+    document.querySelectorAll(".calculator").forEach(function (tool) {
+        tool.style.display = "none";
+    });
+
+    const notes = document.getElementById("notesTool");
+
+    if (!notes) return;
+
+    notes.style.display = "block";
+    renderNotes();
+}
+
+function closeNotes() {
+    cancelNoteEdit();
+
+    const notes = document.getElementById("notesTool");
+
+    if (notes) {
+        notes.style.display = "none";
+    }
+
+    if (typeof showHome === "function") {
+        showHome();
+    }
+}
+
+function saveNote() {
+    const titleInput = document.getElementById("noteTitle");
+    const subjectInput = document.getElementById("noteSubject");
+    const contentInput = document.getElementById("noteContent");
+
+    const title = titleInput.value.trim();
+    const subject = subjectInput.value.trim();
+    const content = contentInput.value.trim();
+
+    if (!title || !content) {
+        if (typeof showAlert === "function") {
+            showAlert("Please enter a title and note content.");
+        }
+        return;
+    }
+
+    const notes = getNotes();
+
+    if (editingNoteId !== null) {
+
+        const note = notes.find(function (item) {
+            return item.id === editingNoteId;
+        });
+
+        if (note) {
+            note.title = title;
+            note.subject = subject;
+            note.content = content;
+            note.updatedAt = Date.now();
+        }
+
+        editingNoteId = null;
+
+    } else {
+
+        notes.unshift({
+            id: Date.now(),
+            title: title,
+            subject: subject,
+            content: content,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        });
+
+    }
+
+    saveNotes(notes);
+
+    titleInput.value = "";
+    subjectInput.value = "";
+    contentInput.value = "";
+
+    const cancelButton = document.getElementById("cancelNoteButton");
+
+    if (cancelButton) {
+        cancelButton.style.display = "none";
+    }
+
+    renderNotes();
+}
+
+function editNote(id) {
+    const notes = getNotes();
+
+    const note = notes.find(function (item) {
+        return item.id === id;
+    });
+
+    if (!note) return;
+
+    document.getElementById("noteTitle").value = note.title || "";
+    document.getElementById("noteSubject").value = note.subject || "";
+    document.getElementById("noteContent").value = note.content || "";
+
+    editingNoteId = id;
+
+    const cancelButton = document.getElementById("cancelNoteButton");
+
+    if (cancelButton) {
+        cancelButton.style.display = "block";
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+function cancelNoteEdit() {
+    editingNoteId = null;
+
+    const title = document.getElementById("noteTitle");
+    const subject = document.getElementById("noteSubject");
+    const content = document.getElementById("noteContent");
+    const cancelButton = document.getElementById("cancelNoteButton");
+
+    if (title) title.value = "";
+    if (subject) subject.value = "";
+    if (content) content.value = "";
+
+    if (cancelButton) {
+        cancelButton.style.display = "none";
+    }
+}
+
+function deleteNote(id) {
+    const notes = getNotes().filter(function (item) {
+        return item.id !== id;
+    });
+
+    saveNotes(notes);
+
+    if (editingNoteId === id) {
+        cancelNoteEdit();
+    }
+
+    renderNotes();
+}
+
+function renderNotes() {
+    const list = document.getElementById("notesList");
+
+    if (!list) return;
+
+    const searchInput = document.getElementById("noteSearch");
+    const search = searchInput
+        ? searchInput.value.trim().toLowerCase()
+        : "";
+
+    const notes = getNotes();
+
+    const filtered = notes.filter(function (note) {
+        if (!search) return true;
+
+        return (
+            String(note.title || "").toLowerCase().includes(search) ||
+            String(note.subject || "").toLowerCase().includes(search) ||
+            String(note.content || "").toLowerCase().includes(search)
+        );
+    });
+
+    if (filtered.length === 0) {
+        list.innerHTML = `
+            <div class="notes-empty">
+                📒 ${
+                    notes.length === 0
+                        ? "No notes yet. Create your first note above!"
+                        : "No notes match your search."
+                }
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = filtered.map(function (note) {
+
+        return `
+            <article class="note-card">
+
+                <div class="note-card-title">
+                    ${escapeHTML(note.title)}
+                </div>
+
+                ${
+                    note.subject
+                        ? `<div class="note-card-subject">
+                            📚 ${escapeHTML(note.subject)}
+                          </div>`
+                        : ""
+                }
+
+                <div class="note-card-content">
+                    ${escapeHTML(note.content)}
+                </div>
+
+                <div class="note-card-actions">
+
+                    <button
+                        type="button"
+                        class="note-edit-button"
+                        onclick="editNote(${note.id})"
+                    >
+                        ✏️ Edit
+                    </button>
+
+                    <button
+                        type="button"
+                        class="note-delete-button"
+                        onclick="deleteNote(${note.id})"
+                    >
+                        🗑️ Delete
+                    </button>
+
+                </div>
+
+            </article>
+        `;
+
+    }).join("");
+}

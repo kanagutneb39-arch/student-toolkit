@@ -174,6 +174,12 @@
     <p>Track assignments and study tasks.</p>
 </div>
 
+<div class="tool-card" onclick="openNotes()">
+    <span>📒</span>
+    <h2>Notes</h2>
+    <p>Create and save your study notes.</p>
+</div>
+
 
 <!-- =========================
      EXAM COUNTDOWN
@@ -273,6 +279,87 @@
         type="button"
         class="backButton"
         onclick="closeTodo()"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+
+<!-- =========================
+     NOTES
+     ========================= -->
+
+<section id="notesTool" class="calculator notes-calculator">
+
+    <h2>📒 Notes</h2>
+
+    <p class="calculator-description">
+        Write, save and quickly find your study notes. 🧠
+    </p>
+
+    <div class="notes-editor">
+
+        <label for="noteTitle">Title</label>
+        <input
+            type="text"
+            id="noteTitle"
+            placeholder="Example: Heredity Revision"
+            maxlength="80"
+        >
+
+        <label for="noteSubject">Subject</label>
+        <input
+            type="text"
+            id="noteSubject"
+            placeholder="Example: Science"
+            maxlength="40"
+        >
+
+        <label for="noteContent">Note</label>
+        <textarea
+            id="noteContent"
+            placeholder="Write your notes here..."
+            rows="8"
+            maxlength="5000"
+        ></textarea>
+
+        <button type="button" onclick="saveNote()">
+            💾 Save Note
+        </button>
+
+        <button
+            type="button"
+            class="notes-cancel-button"
+            id="cancelNoteButton"
+            onclick="cancelNoteEdit()"
+            style="display:none;"
+        >
+            ✖️ Cancel Edit
+        </button>
+
+    </div>
+
+    <div class="notes-search">
+
+        <label for="noteSearch">🔍 Search Notes</label>
+
+        <input
+            type="search"
+            id="noteSearch"
+            placeholder="Search by title, subject or content..."
+            oninput="renderNotes()"
+        >
+
+    </div>
+
+    <div id="notesList" class="notes-list"></div>
+
+    <button
+        type="button"
+        class="backButton"
+        onclick="closeNotes()"
     >
         ← Back
     </button>
