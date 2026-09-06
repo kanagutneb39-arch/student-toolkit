@@ -1732,3 +1732,220 @@ function closeFancyAlert() {
 function showAlert(message) {
     showFancyAlert("Notice", message, "⚠️");
 }
+
+
+/* =========================
+   TO-DO LIST
+   ========================= */
+
+const TODO_STORAGE_KEY = "studentToolkitTodos";
+
+function getTodos() {
+    try {
+        return JSON.parse(
+            localStorage.getItem(TODO_STORAGE_KEY)
+        ) || [];
+    } catch {
+        return [];
+    }
+}
+
+function saveTodos(todos) {
+    localStorage.setItem(
+        TODO_STORAGE_KEY,
+        JSON.stringify(todos)
+    );
+}
+
+function openTodo() {
+    if (typeof hideAllTools === "function") {
+        hideAllTools();
+    }
+
+    document.querySelectorAll(".calculator").forEach(function (tool) {
+        tool.style.display = "none";
+    });
+
+    const todo = document.getElementById("todoTool");
+
+    if (!todo) return;
+
+    todo.style.display = "block";
+    renderTodos();
+}
+
+function closeTodo() {
+    const todo = document.getElementById("todoTool");
+
+    if (todo) {
+        todo.style.display = "none";
+    }
+
+    if (typeof showHome === "function") {
+        showHome();
+    }
+}
+
+function addTodo() {
+    const taskInput = document.getElementById("todoTask");
+    const subjectInput = document.getElementById("todoSubject");
+    const dateInput = document.getElementById("todoDate");
+
+    const task = taskInput.value.trim();
+    const subject = subjectInput.value.trim();
+    const dueDate = dateInput.value;
+
+    if (!task) {
+        if (typeof showAlert === "function") {
+            showAlert("Please enter a task.");
+        }
+        return;
+    }
+
+    const todos = getTodos();
+
+    todos.push({
+        id: Date.now(),
+        task: task,
+        subject: subject,
+        dueDate: dueDate,
+        completed: false
+    });
+
+    saveTodos(todos);
+
+    taskInput.value = "";
+    subjectInput.value = "";
+    dateInput.value = "";
+
+    renderTodos();
+}
+
+function toggleTodo(id) {
+    const todos = getTodos();
+
+    const todo = todos.find(function (item) {
+        return item.id === id;
+    });
+
+    if (!todo) return;
+
+    todo.completed = !todo.completed;
+
+    saveTodos(todos);
+    renderTodos();
+}
+
+function deleteTodo(id) {
+    const todos = getTodos().filter(function (item) {
+        return item.id !== id;
+    });
+
+    saveTodos(todos);
+    renderTodos();
+}
+
+function formatTodoDate(dateString) {
+    if (!dateString) return "";
+
+    const date = new Date(dateString + "T00:00:00");
+
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleDateString(undefined, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+}
+
+function isTodoOverdue(todo) {
+    if (!todo.dueDate || todo.completed) return false;
+
+    const due = new Date(todo.dueDate + "T23:59:59");
+
+    return due.getTime() < Date.now();
+}
+
+function renderTodos() {
+    const list = document.getElementById("todoList");
+
+    if (!list) return;
+
+    const todos = getTodos();
+
+    if (todos.length === 0) {
+        list.innerHTML = `
+            <div class="todo-empty">
+                📝 No tasks yet. Add your first task above!
+            </div>
+        `;
+        return;
+    }
+
+    todos.sort(function (a, b) {
+        if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
+        }
+
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+
+        return a.dueDate.localeCompare(b.dueDate);
+    });
+
+    list.innerHTML = todos.map(function (todo) {
+
+        const overdue = isTodoOverdue(todo);
+
+        const dueText = todo.dueDate
+            ? `
+                <div class="todo-due ${overdue ? "todo-overdue" : ""}">
+                    ${overdue ? "⚠️ Overdue • " : "📅 Due • "}
+                    ${formatTodoDate(todo.dueDate)}
+                </div>
+              `
+            : "";
+
+        return `
+            <div class="todo-item ${todo.completed ? "completed" : ""}">
+
+                <input
+                    class="todo-check"
+                    type="checkbox"
+                    ${todo.completed ? "checked" : ""}
+                    onchange="toggleTodo(${todo.id})"
+                >
+
+                <div class="todo-content">
+
+                    <div class="todo-task">
+                        ${escapeHTML(todo.task)}
+                    </div>
+
+                    ${
+                        todo.subject
+                            ? `<div class="todo-subject">
+                                📚 ${escapeHTML(todo.subject)}
+                              </div>`
+                            : ""
+                    }
+
+                    ${dueText}
+
+                </div>
+
+                <button
+                    type="button"
+                    class="todo-delete"
+                    onclick="deleteTodo(${todo.id})"
+                    aria-label="Delete task"
+                >
+                    🗑️
+                </button>
+
+            </div>
+        `;
+    }).join("");
+}

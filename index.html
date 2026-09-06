@@ -168,6 +168,12 @@
     <p>Count down to your next exam.</p>
 </div>
 
+<div class="tool-card" onclick="openTodo()">
+    <span>✅</span>
+    <h2>To-Do List</h2>
+    <p>Track assignments and study tasks.</p>
+</div>
+
 
 <!-- =========================
      EXAM COUNTDOWN
@@ -215,6 +221,58 @@
         type="button"
         class="backButton"
         onclick="closeCountdown()"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+
+<!-- =========================
+     TO-DO LIST
+     ========================= -->
+
+<section id="todoTool" class="calculator todo-calculator">
+
+    <h2>✅ To-Do List</h2>
+
+    <p class="calculator-description">
+        Keep track of assignments, homework and study tasks. 📚
+    </p>
+
+    <label for="todoTask">Task</label>
+    <input
+        type="text"
+        id="todoTask"
+        placeholder="Example: Complete Maths Ex 8.2"
+        maxlength="100"
+    >
+
+    <label for="todoSubject">Subject</label>
+    <input
+        type="text"
+        id="todoSubject"
+        placeholder="Example: Mathematics"
+        maxlength="40"
+    >
+
+    <label for="todoDate">Due Date</label>
+    <input
+        type="date"
+        id="todoDate"
+    >
+
+    <button type="button" onclick="addTodo()">
+        ➕ Add Task
+    </button>
+
+    <div id="todoList" class="todo-list"></div>
+
+    <button
+        type="button"
+        class="backButton"
+        onclick="closeTodo()"
     >
         ← Back
     </button>
