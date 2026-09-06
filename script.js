@@ -2618,3 +2618,16 @@ function closeTextbooks() {
         showHome();
     }
 }
+
+
+function updateNCERTClass() {
+    const select = document.getElementById("ncertClassSelect");
+    const display = document.getElementById("selectedNCERTClass");
+
+    if (!select || !display) return;
+
+    const classNumber = select.value;
+
+    display.textContent =
+        `📖 Class ${classNumber} Textbooks`;
+}

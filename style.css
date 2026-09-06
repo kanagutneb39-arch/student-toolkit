@@ -1701,3 +1701,22 @@ body.dark-mode .notes-cancel-button {
         grid-template-columns: 1fr;
     }
 }
+
+
+.selected-textbook-class {
+    margin: 20px 0 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(100, 100, 100, 0.25);
+}
+
+#ncertClassSelect {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(100, 100, 100, 0.3);
+    font-size: 1rem;
+    margin-top: 8px;
+    background: inherit;
+}
