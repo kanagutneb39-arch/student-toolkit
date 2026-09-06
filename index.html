@@ -162,6 +162,65 @@
         <p>Convert common units easily.</p>
     </div>
 
+<div class="tool-card" onclick="openCountdown()">
+    <span>⏳</span>
+    <h2>Exam Countdown</h2>
+    <p>Count down to your next exam.</p>
+</div>
+
+
+<!-- =========================
+     EXAM COUNTDOWN
+     ========================= -->
+
+<section id="countdownTool" class="calculator countdown-calculator">
+
+    <h2>⏳ Exam Countdown</h2>
+
+    <p class="calculator-description">
+        Set an exam date and keep track of exactly how much time is left. 📚
+    </p>
+
+    <label for="countdownName">Exam / Subject</label>
+    <input
+        type="text"
+        id="countdownName"
+        placeholder="Example: Mathematics"
+        maxlength="60"
+    >
+
+    <label for="countdownDate">Exam Date</label>
+    <input
+        type="date"
+        id="countdownDate"
+    >
+
+    <button type="button" onclick="startCountdown()">
+        🚀 Start Countdown
+    </button>
+
+    <div id="countdownResult" class="countdown-result">
+        Enter an exam name and date to begin.
+    </div>
+
+    <button
+        type="button"
+        class="countdown-clear-button"
+        onclick="clearCountdown()"
+    >
+        🗑️ Clear Countdown
+    </button>
+
+    <button
+        type="button"
+        class="backButton"
+        onclick="closeCountdown()"
+    >
+        ← Back
+    </button>
+
+</section>
+
 </main>
 
 

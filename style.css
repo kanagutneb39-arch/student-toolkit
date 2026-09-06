@@ -1249,3 +1249,65 @@ body.dark-mode .ad-slot {
         min-height: 70px;
     }
 }
+
+/* =========================
+   EXAM COUNTDOWN
+   ========================= */
+
+.countdown-calculator {
+    max-width: 550px;
+}
+
+.countdown-result {
+    margin-top: 25px;
+    padding: 22px 18px;
+    background: #f4f6fb;
+    border-radius: 16px;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1.5;
+}
+
+.countdown-exam-name {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.countdown-time {
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.countdown-date-text {
+    color: #666;
+    font-size: 14px;
+}
+
+.countdown-clear-button {
+    background: #eee !important;
+    color: #222 !important;
+}
+
+body.dark-mode .countdown-result {
+    background: #11141c !important;
+    color: #f1f3f8 !important;
+}
+
+body.dark-mode .countdown-date-text {
+    color: #aeb5c2 !important;
+}
+
+body.dark-mode .countdown-clear-button {
+    background: #292e3a !important;
+    color: #f1f3f8 !important;
+}
+
+@media (max-width: 700px) {
+    .countdown-time {
+        font-size: 26px;
+    }
+}

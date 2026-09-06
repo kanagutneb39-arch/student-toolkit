@@ -1487,3 +1487,211 @@ document.addEventListener(
         updateConverterUnits();
     }
 );
+
+/* =========================
+   EXAM COUNTDOWN
+   ========================= */
+
+let countdownInterval = null;
+
+function stopCountdownInterval() {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+}
+
+function getSavedCountdown() {
+    try {
+        return JSON.parse(
+            localStorage.getItem("studentToolkitExamCountdown")
+        );
+    } catch {
+        return null;
+    }
+}
+
+function saveCountdown(data) {
+    localStorage.setItem(
+        "studentToolkitExamCountdown",
+        JSON.stringify(data)
+    );
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function (char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        }[char];
+    });
+}
+
+function formatCountdownDate(date) {
+    return date.toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
+
+function getCountdownParts(target) {
+    const difference = target.getTime() - Date.now();
+
+    if (difference <= 0) {
+        return null;
+    }
+
+    const totalSeconds = Math.floor(difference / 1000);
+
+    return {
+        days: Math.floor(totalSeconds / 86400),
+        hours: Math.floor((totalSeconds % 86400) / 3600),
+        minutes: Math.floor((totalSeconds % 3600) / 60),
+        seconds: totalSeconds % 60
+    };
+}
+
+function renderCountdown(data) {
+    const result = document.getElementById("countdownResult");
+
+    if (!result || !data) return;
+
+    const target = new Date(data.date + "T00:00:00");
+
+    if (Number.isNaN(target.getTime())) {
+        result.innerHTML = "❌ Invalid exam date.";
+        return;
+    }
+
+    const parts = getCountdownParts(target);
+
+    if (!parts) {
+        const today = new Date();
+        const examDay = target.toDateString() === today.toDateString();
+
+        result.innerHTML = `
+            <div class="countdown-exam-name">
+                📚 ${escapeHTML(data.name)}
+            </div>
+            <div class="countdown-time">
+                ${examDay ? "🎯 Exam Day!" : "⏰ Exam date has passed."}
+            </div>
+            <div class="countdown-date-text">
+                ${formatCountdownDate(target)}
+            </div>
+        `;
+
+        stopCountdownInterval();
+        return;
+    }
+
+    result.innerHTML = `
+        <div class="countdown-exam-name">
+            📚 ${escapeHTML(data.name)}
+        </div>
+        <div class="countdown-time">
+            ${parts.days}d ${String(parts.hours).padStart(2, "0")}h
+            ${String(parts.minutes).padStart(2, "0")}m
+            ${String(parts.seconds).padStart(2, "0")}s
+        </div>
+        <div class="countdown-date-text">
+            ${formatCountdownDate(target)}
+        </div>
+    `;
+}
+
+function openCountdown() {
+    stopCountdownInterval();
+
+    if (typeof hideAllTools === "function") {
+        hideAllTools();
+    }
+
+    document.querySelectorAll(".calculator").forEach(function (tool) {
+        tool.style.display = "none";
+    });
+
+    const countdown = document.getElementById("countdownTool");
+
+    if (!countdown) return;
+
+    countdown.style.display = "block";
+
+    const saved = getSavedCountdown();
+
+    if (saved) {
+        document.getElementById("countdownName").value = saved.name || "";
+        document.getElementById("countdownDate").value = saved.date || "";
+
+        renderCountdown(saved);
+
+        countdownInterval = setInterval(function () {
+            renderCountdown(saved);
+        }, 1000);
+    }
+}
+
+function closeCountdown() {
+    stopCountdownInterval();
+
+    const countdown = document.getElementById("countdownTool");
+
+    if (countdown) {
+        countdown.style.display = "none";
+    }
+
+    if (typeof showHome === "function") {
+        showHome();
+    }
+}
+
+function startCountdown() {
+    const nameInput = document.getElementById("countdownName");
+    const dateInput = document.getElementById("countdownDate");
+
+    const name = nameInput.value.trim();
+    const date = dateInput.value;
+
+    if (!name || !date) {
+        if (typeof showAlert === "function") {
+            showAlert("Please enter the exam name and date.");
+        } else {
+            alert("Please enter the exam name and date.");
+        }
+        return;
+    }
+
+    const data = {
+        name: name,
+        date: date
+    };
+
+    saveCountdown(data);
+
+    stopCountdownInterval();
+    renderCountdown(data);
+
+    countdownInterval = setInterval(function () {
+        renderCountdown(data);
+    }, 1000);
+}
+
+function clearCountdown() {
+    stopCountdownInterval();
+
+    localStorage.removeItem("studentToolkitExamCountdown");
+
+    document.getElementById("countdownName").value = "";
+    document.getElementById("countdownDate").value = "";
+
+    const result = document.getElementById("countdownResult");
+
+    if (result) {
+        result.innerHTML = "Enter an exam name and date to begin.";
+    }
+}
