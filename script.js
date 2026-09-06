@@ -2206,3 +2206,386 @@ function renderNotes() {
 
     }).join("");
 }
+
+
+/* =========================
+   STUDENT TOOLKIT QUIZ
+   ========================= */
+
+const QUIZ_STORAGE_KEY = "studentToolkitBestScores";
+
+const QUIZ_QUESTIONS = [
+    // Science
+    {
+        subject: "science",
+        question: "Which organelle is known as the powerhouse of the cell?",
+        options: ["Nucleus", "Mitochondria", "Ribosome", "Chloroplast"],
+        answer: 1
+    },
+    {
+        subject: "science",
+        question: "What is the chemical formula of water?",
+        options: ["CO₂", "O₂", "H₂O", "H₂"],
+        answer: 2
+    },
+    {
+        subject: "science",
+        question: "Which gas is mainly used by plants during photosynthesis?",
+        options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+        answer: 2
+    },
+    {
+        subject: "science",
+        question: "What is the SI unit of force?",
+        options: ["Joule", "Newton", "Watt", "Pascal"],
+        answer: 1
+    },
+    {
+        subject: "science",
+        question: "Which planet is known as the Red Planet?",
+        options: ["Venus", "Mars", "Jupiter", "Mercury"],
+        answer: 1
+    },
+
+    // Mathematics
+    {
+        subject: "math",
+        question: "What is 12 × 8?",
+        options: ["86", "96", "108", "92"],
+        answer: 1
+    },
+    {
+        subject: "math",
+        question: "What is 15% of 200?",
+        options: ["20", "25", "30", "35"],
+        answer: 2
+    },
+    {
+        subject: "math",
+        question: "What is the sum of the angles of a triangle?",
+        options: ["90°", "180°", "270°", "360°"],
+        answer: 1
+    },
+    {
+        subject: "math",
+        question: "What is √144?",
+        options: ["10", "11", "12", "14"],
+        answer: 2
+    },
+    {
+        subject: "math",
+        question: "What is 3/4 + 1/4?",
+        options: ["1/2", "1", "3/8", "4/8"],
+        answer: 1
+    },
+
+    // General Knowledge
+    {
+        subject: "general",
+        question: "Which is the largest planet in our Solar System?",
+        options: ["Earth", "Saturn", "Jupiter", "Neptune"],
+        answer: 2
+    },
+    {
+        subject: "general",
+        question: "What is the capital of Japan?",
+        options: ["Seoul", "Tokyo", "Beijing", "Bangkok"],
+        answer: 1
+    },
+    {
+        subject: "general",
+        question: "How many continents are there?",
+        options: ["5", "6", "7", "8"],
+        answer: 2
+    },
+    {
+        subject: "general",
+        question: "Which is the largest ocean on Earth?",
+        options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+        answer: 3
+    },
+    {
+        subject: "general",
+        question: "Which language is primarily used to structure web pages?",
+        options: ["HTML", "Python", "SQL", "C++"],
+        answer: 0
+    }
+];
+
+let quizQuestions = [];
+let quizCurrentIndex = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function shuffleQuizArray(array) {
+    const copy = [...array];
+
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+
+    return copy;
+}
+
+function getQuizQuestions() {
+    const subject =
+        document.getElementById("quizSubject")?.value || "mixed";
+
+    let available = QUIZ_QUESTIONS;
+
+    if (subject !== "mixed") {
+        available = QUIZ_QUESTIONS.filter(q => q.subject === subject);
+    }
+
+    return shuffleQuizArray(available).slice(0, 5);
+}
+
+function openQuiz() {
+    document.querySelectorAll(".calculator").forEach(tool => {
+        tool.style.display = "none";
+    });
+
+    const quiz = document.getElementById("quizTool");
+
+    if (quiz) {
+        quiz.style.display = "block";
+        startQuiz();
+    }
+}
+
+function closeQuiz() {
+    const quiz = document.getElementById("quizTool");
+
+    if (quiz) {
+        quiz.style.display = "none";
+    }
+
+    if (typeof showHome === "function") {
+        showHome();
+    }
+}
+
+function startQuiz() {
+    quizQuestions = getQuizQuestions();
+    quizCurrentIndex = 0;
+    quizScore = 0;
+    quizAnswered = false;
+
+    const restartButton =
+        document.getElementById("quizRestartButton");
+
+    const nextButton =
+        document.getElementById("quizNextButton");
+
+    const result =
+        document.getElementById("quizResult");
+
+    if (restartButton) restartButton.style.display = "none";
+    if (nextButton) {
+        nextButton.style.display = "inline-block";
+        nextButton.disabled = true;
+    }
+    if (result) result.innerHTML = "";
+
+    renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+    const questionEl =
+        document.getElementById("quizQuestion");
+
+    const optionsEl =
+        document.getElementById("quizOptions");
+
+    const progressEl =
+        document.getElementById("quizProgress");
+
+    const feedbackEl =
+        document.getElementById("quizFeedback");
+
+    const nextButton =
+        document.getElementById("quizNextButton");
+
+    if (!questionEl || !optionsEl) return;
+
+    if (quizCurrentIndex >= quizQuestions.length) {
+        finishQuiz();
+        return;
+    }
+
+    const current = quizQuestions[quizCurrentIndex];
+
+    quizAnswered = false;
+
+    questionEl.textContent = current.question;
+
+    if (progressEl) {
+        progressEl.textContent =
+            `Question ${quizCurrentIndex + 1} of ${quizQuestions.length}`;
+    }
+
+    if (feedbackEl) {
+        feedbackEl.textContent = "";
+    }
+
+    if (nextButton) {
+        nextButton.disabled = true;
+        nextButton.textContent =
+            quizCurrentIndex === quizQuestions.length - 1
+                ? "Finish 🏁"
+                : "Next ➡️";
+    }
+
+    optionsEl.innerHTML = "";
+
+    current.options.forEach((option, index) => {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "quiz-option";
+        button.textContent = option;
+
+        button.addEventListener("click", () => {
+            selectQuizAnswer(index);
+        });
+
+        optionsEl.appendChild(button);
+    });
+}
+
+function selectQuizAnswer(selectedIndex) {
+    if (quizAnswered) return;
+
+    quizAnswered = true;
+
+    const current = quizQuestions[quizCurrentIndex];
+    const buttons =
+        document.querySelectorAll(".quiz-option");
+
+    buttons.forEach(button => {
+        button.disabled = true;
+    });
+
+    if (buttons[current.answer]) {
+        buttons[current.answer].classList.add("correct");
+    }
+
+    const feedbackEl =
+        document.getElementById("quizFeedback");
+
+    if (selectedIndex === current.answer) {
+        quizScore++;
+
+        if (feedbackEl) {
+            feedbackEl.textContent = "✅ Correct!";
+        }
+    } else {
+        if (buttons[selectedIndex]) {
+            buttons[selectedIndex].classList.add("wrong");
+        }
+
+        if (feedbackEl) {
+            feedbackEl.textContent =
+                `❌ Wrong! Correct answer: ${current.options[current.answer]}`;
+        }
+    }
+
+    const nextButton =
+        document.getElementById("quizNextButton");
+
+    if (nextButton) {
+        nextButton.disabled = false;
+    }
+}
+
+function nextQuizQuestion() {
+    if (!quizAnswered) return;
+
+    quizCurrentIndex++;
+    renderQuizQuestion();
+}
+
+function getQuizBestScores() {
+    try {
+        return JSON.parse(
+            localStorage.getItem(QUIZ_STORAGE_KEY)
+        ) || {};
+    } catch {
+        return {};
+    }
+}
+
+function saveQuizBestScore(subject, score) {
+    const scores = getQuizBestScores();
+
+    if (!scores[subject] || score > scores[subject]) {
+        scores[subject] = score;
+
+        localStorage.setItem(
+            QUIZ_STORAGE_KEY,
+            JSON.stringify(scores)
+        );
+    }
+}
+
+function finishQuiz() {
+    const questionEl =
+        document.getElementById("quizQuestion");
+
+    const optionsEl =
+        document.getElementById("quizOptions");
+
+    const progressEl =
+        document.getElementById("quizProgress");
+
+    const feedbackEl =
+        document.getElementById("quizFeedback");
+
+    const nextButton =
+        document.getElementById("quizNextButton");
+
+    const restartButton =
+        document.getElementById("quizRestartButton");
+
+    const result =
+        document.getElementById("quizResult");
+
+    const subject =
+        document.getElementById("quizSubject")?.value || "mixed";
+
+    saveQuizBestScore(subject, quizScore);
+
+    const best =
+        getQuizBestScores()[subject] || quizScore;
+
+    if (questionEl) {
+        questionEl.textContent = "🎉 Quiz Complete!";
+    }
+
+    if (optionsEl) {
+        optionsEl.innerHTML = "";
+    }
+
+    if (progressEl) {
+        progressEl.textContent = "";
+    }
+
+    if (feedbackEl) {
+        feedbackEl.textContent = "";
+    }
+
+    if (nextButton) {
+        nextButton.style.display = "none";
+    }
+
+    if (restartButton) {
+        restartButton.style.display = "inline-block";
+    }
+
+    if (result) {
+        result.innerHTML =
+            `You scored <strong>${quizScore}/${quizQuestions.length}</strong><br>` +
+            `🏆 Best score: ${best}/${quizQuestions.length}`;
+    }
+}

@@ -179,6 +179,12 @@
     <h2>Notes</h2>
     <p>Create and save your study notes.</p>
 </div>
+        <div class="tool-card" onclick="openQuiz()">
+            <span>🧠</span>
+            <h2>Quiz</h2>
+            <p>Test your knowledge with quick MCQs.</p>
+        </div>
+
 
 
 <!-- =========================
@@ -364,6 +370,44 @@
         ← Back
     </button>
 
+</section>
+
+
+<section id="quizTool" class="calculator quiz-calculator">
+    <h2>🧠 Quiz</h2>
+    <p class="calculator-description">Test your knowledge with quick multiple-choice questions.</p>
+
+    <label for="quizSubject">Choose Subject</label>
+    <select id="quizSubject" onchange="startQuiz()">
+        <option value="mixed">🎲 Mixed</option>
+        <option value="science">🔬 Science</option>
+        <option value="math">📐 Mathematics</option>
+        <option value="general">🌍 General Knowledge</option>
+    </select>
+
+    <div id="quizProgress" class="quiz-progress"></div>
+
+    <div id="quizQuestion" class="quiz-question"></div>
+
+    <div id="quizOptions" class="quiz-options"></div>
+
+    <div id="quizFeedback" class="quiz-feedback"></div>
+
+    <button id="quizNextButton" type="button"
+            onclick="nextQuizQuestion()" disabled>
+        Next ➡️
+    </button>
+
+    <button id="quizRestartButton" type="button"
+            onclick="startQuiz()" style="display:none;">
+        🔄 Try Again
+    </button>
+
+    <div id="quizResult" class="quiz-result"></div>
+
+    <button class="backButton" type="button" onclick="closeQuiz()">
+        ← Back
+    </button>
 </section>
 
 </main>
