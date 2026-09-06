@@ -2589,3 +2589,32 @@ function finishQuiz() {
             `🏆 Best score: ${best}/${quizQuestions.length}`;
     }
 }
+
+
+/* =========================
+   NCERT TEXTBOOKS
+   ========================= */
+
+function openTextbooks() {
+    document.querySelectorAll(".calculator").forEach(tool => {
+        tool.style.display = "none";
+    });
+
+    const textbooks = document.getElementById("textbooksTool");
+
+    if (textbooks) {
+        textbooks.style.display = "block";
+    }
+}
+
+function closeTextbooks() {
+    const textbooks = document.getElementById("textbooksTool");
+
+    if (textbooks) {
+        textbooks.style.display = "none";
+    }
+
+    if (typeof showHome === "function") {
+        showHome();
+    }
+}

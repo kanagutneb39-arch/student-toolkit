@@ -1629,3 +1629,75 @@ body.dark-mode .notes-cancel-button {
         padding: 13px;
     }
 }
+
+
+/* NCERT TEXTBOOK STYLES */
+
+.textbooks-calculator {
+    max-width: 850px;
+}
+
+.textbook-source-note {
+    padding: 14px 16px;
+    margin: 16px 0 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(100, 100, 100, 0.25);
+    line-height: 1.5;
+}
+
+.textbook-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.textbook-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 18px;
+    border: 1px solid rgba(100, 100, 100, 0.25);
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.textbook-card:hover {
+    transform: translateY(-2px);
+}
+
+.textbook-card span {
+    font-size: 1.7rem;
+}
+
+.textbook-card strong {
+    font-size: 1.05rem;
+}
+
+.textbook-card small {
+    opacity: 0.72;
+    line-height: 1.4;
+}
+
+.textbook-card b {
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+
+.official-ncert-button {
+    display: block;
+    margin: 22px 0 12px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid rgba(100, 100, 100, 0.25);
+}
+
+@media (max-width: 600px) {
+    .textbook-grid {
+        grid-template-columns: 1fr;
+    }
+}

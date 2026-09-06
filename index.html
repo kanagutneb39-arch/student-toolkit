@@ -184,6 +184,12 @@
             <h2>Quiz</h2>
             <p>Test your knowledge with quick MCQs.</p>
         </div>
+        <div class="tool-card" onclick="openTextbooks()">
+            <span>📚</span>
+            <h2>NCERT Textbooks</h2>
+            <p>Official Class 10 NCERT textbook sources.</p>
+        </div>
+
 
 
 
@@ -406,6 +412,73 @@
     <div id="quizResult" class="quiz-result"></div>
 
     <button class="backButton" type="button" onclick="closeQuiz()">
+        ← Back
+    </button>
+</section>
+
+
+<section id="textbooksTool" class="calculator textbooks-calculator">
+    <h2>📚 Class 10 NCERT Textbooks</h2>
+    <p class="calculator-description">
+        Open official NCERT textbook sources.
+    </p>
+
+    <div class="textbook-source-note">
+        🔗 Student Toolkit links directly to NCERT. No textbook PDFs are hosted here.
+    </div>
+
+    <div class="textbook-grid">
+
+        <a class="textbook-card" href="https://ncert.nic.in/textbook.php"
+           target="_blank" rel="noopener noreferrer">
+            <span>📐</span>
+            <strong>Mathematics</strong>
+            <small>Class 10 Mathematics</small>
+            <b>Open NCERT →</b>
+        </a>
+
+        <a class="textbook-card" href="https://ncert.nic.in/textbook.php"
+           target="_blank" rel="noopener noreferrer">
+            <span>🔬</span>
+            <strong>Science</strong>
+            <small>Class 10 Science</small>
+            <b>Open NCERT →</b>
+        </a>
+
+        <a class="textbook-card" href="https://ncert.nic.in/textbook.php"
+           target="_blank" rel="noopener noreferrer">
+            <span>🏛️</span>
+            <strong>Social Science</strong>
+            <small>History • Geography • Political Science • Economics</small>
+            <b>Open NCERT →</b>
+        </a>
+
+        <a class="textbook-card" href="https://ncert.nic.in/textbook.php"
+           target="_blank" rel="noopener noreferrer">
+            <span>📖</span>
+            <strong>English</strong>
+            <small>Class 10 English textbooks</small>
+            <b>Open NCERT →</b>
+        </a>
+
+        <a class="textbook-card" href="https://ncert.nic.in/textbook.php"
+           target="_blank" rel="noopener noreferrer">
+            <span>🇮🇳</span>
+            <strong>Hindi</strong>
+            <small>Class 10 Hindi textbooks</small>
+            <b>Open NCERT →</b>
+        </a>
+
+    </div>
+
+    <a class="official-ncert-button"
+       href="https://ncert.nic.in/textbook.php"
+       target="_blank"
+       rel="noopener noreferrer">
+        🔗 Open Official NCERT Textbooks
+    </a>
+
+    <button class="backButton" type="button" onclick="closeTextbooks()">
         ← Back
     </button>
 </section>
