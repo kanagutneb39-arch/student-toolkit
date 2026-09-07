@@ -2631,3 +2631,18 @@ function updateNCERTClass() {
     display.textContent =
         `📖 Class ${classNumber} Textbooks`;
 }
+
+/* =========================
+   CURRENT YEAR
+   ========================= */
+
+function updateCurrentYear() {
+    const yearElement = document.getElementById("currentYear");
+
+    if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", updateCurrentYear);
+

@@ -1784,3 +1784,124 @@ body.dark-mode .notes-cancel-button {
         min-height: 90px;
     }
 }
+
+/* =========================
+   SITE NAVIGATION
+   ========================= */
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 18px auto;
+}
+
+.site-nav a,
+.footer-links a {
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.site-nav a {
+    padding: 8px 14px;
+    border-radius: 10px;
+    transition: 0.2s ease;
+}
+
+.site-nav a:hover {
+    transform: translateY(-1px);
+}
+
+/* =========================
+   FOOTER LINKS
+   ========================= */
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.footer-disclaimer {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    max-width: 700px;
+    margin: 10px auto 0;
+    line-height: 1.5;
+}
+
+/* =========================
+   INFO / LEGAL PAGES
+   ========================= */
+
+.info-page {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.info-main {
+    line-height: 1.7;
+}
+
+.info-card {
+    padding: 22px;
+    margin-bottom: 18px;
+    border-radius: 16px;
+}
+
+.info-meta {
+    opacity: 0.75;
+    font-size: 0.9rem;
+}
+
+.info-callout {
+    padding: 16px;
+    border-radius: 12px;
+    margin: 18px 0;
+}
+
+.info-back {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.contact-list {
+    display: grid;
+    gap: 14px;
+}
+
+.contact-item {
+    padding: 16px;
+    border-radius: 12px;
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 600px) {
+    .site-nav {
+        gap: 6px;
+    }
+
+    .site-nav a {
+        padding: 7px 10px;
+        font-size: 0.9rem;
+    }
+
+    .footer-links {
+        gap: 10px;
+        font-size: 0.9rem;
+    }
+
+    .info-page {
+        padding: 12px;
+    }
+}
+
