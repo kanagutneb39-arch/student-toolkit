@@ -38,6 +38,10 @@ async function loadSupabase() {
 
 let authMode = "login";
 
+// Premium state
+let isPremium = false;
+let premiumUntil = null;
+
 let timerInterval = null;
 let timerSeconds = 25 * 60;
 let timerRunning = false;
@@ -533,22 +537,76 @@ async function checkLoggedInUser() {
             error
         } = await supabaseClient.auth.getUser();
 
-        if (error) {
+        if (error || !data.user) {
+            isPremium = false;
+            premiumUntil = null;
+
             updateAuthUI(null);
             return;
         }
 
-        updateAuthUI(data.user || null);
+        const user = data.user;
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select("is_premium, premium_until")
+            .eq("id", user.id)
+            .maybeSingle();
+
+        if (profileError) {
+            console.error(
+                "Loading premium status failed:",
+                profileError
+            );
+
+            isPremium = false;
+            premiumUntil = null;
+        } else {
+            isPremium = profile?.is_premium === true;
+            premiumUntil = profile?.premium_until || null;
+
+            if (
+                isPremium &&
+                premiumUntil &&
+                new Date(premiumUntil) <= new Date()
+            ) {
+                isPremium = false;
+            }
+        }
+
+        updateAuthUI(user);
+
+        const debug = document.getElementById("premiumDebugStatus");
+
+        if (debug) {
+            debug.innerHTML =
+                "👤 Logged in: Yes<br>" +
+                "👑 Premium: " + (isPremium ? "YES" : "NO") + "<br>" +
+                "⏰ Premium until: " + (premiumUntil || "Not set");
+        }
+
+        console.log(
+            "Premium status:",
+            isPremium,
+            "Until:",
+            premiumUntil
+        );
+
     } catch (error) {
         console.error(
             "Checking logged-in user failed:",
             error
         );
 
+        isPremium = false;
+        premiumUntil = null;
+
         updateAuthUI(null);
     }
 }
-
 
 function setupAuthListener() {
     if (!supabaseClient) return;
