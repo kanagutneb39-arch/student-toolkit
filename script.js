@@ -38,9 +38,6 @@ async function loadSupabase() {
 
 let authMode = "login";
 
-// Premium state
-let isPremium = false;
-let premiumUntil = null;
 
 let timerInterval = null;
 let timerSeconds = 25 * 60;
@@ -451,7 +448,6 @@ async function submitAuth() {
                 true
             );
 
-            await checkLoggedInUser();
         }
     } catch (error) {
         console.error("Authentication error:", error);
@@ -527,118 +523,6 @@ function updateAuthUI(user) {
     }
 }
 
-
-async function checkLoggedInUser() {
-    console.log("🔥 CHECK LOGGED IN USER STARTED");
-
-    if (!supabaseClient) {
-        console.log("❌ Supabase client is missing");
-        return;
-    }
-
-    try {
-        const {
-            data,
-            error
-        } = await supabaseClient.auth.getUser();
-
-        if (error || !data.user) {
-            isPremium = false;
-            premiumUntil = null;
-
-            updateAuthUI(null);
-            return;
-        }
-
-        const user = data.user;
-
-        const {
-            data: profile,
-            error: profileError
-        } = await supabaseClient
-            .from("profiles")
-            .select("is_premium, premium_until")
-            .eq("id", user.id)
-            .maybeSingle();
-
-        console.log("DEBUG USER ID:", user.id);
-        console.log("DEBUG PROFILE:", profile);
-        console.log("DEBUG PROFILE ERROR:", profileError);
-        console.log("🔥 PROFILE RAW RESULT:", JSON.stringify({ profile, profileError }));
-
-        const debugProfile = document.getElementById("premiumDebugStatus");
-
-        if (debugProfile) {
-            debugProfile.innerHTML =
-                "👤 Logged in: Yes<br>" +
-                "🆔 User ID: " + user.id + "<br>" +
-                "📦 Profile found: " + (profile ? "Yes" : "NO") + "<br>" +
-                "👑 Database Premium: " + String(profile?.is_premium) + "<br>" +
-                "⏰ Database expiry: " + String(profile?.premium_until);
-        }
-
-        if (profileError) {
-            console.error(
-                "Loading premium status failed:",
-                profileError
-            );
-
-            isPremium = false;
-            premiumUntil = null;
-        } else {
-            console.log("🧪 RAW PREMIUM VALUE:", profile?.is_premium);
-            console.log("🧪 PREMIUM VALUE TYPE:", typeof profile?.is_premium);
-            console.log("🧪 RAW EXPIRY VALUE:", profile?.premium_until);
-
-            isPremium = profile?.is_premium === true;
-            premiumUntil = profile?.premium_until || null;
-
-            if (isPremium && premiumUntil) {
-            const expiryDate = new Date(premiumUntil);
-            const nowDate = new Date();
-
-            console.log("🧪 PREMIUM DATE DEBUG");
-            console.log("Database expiry:", premiumUntil);
-            console.log("Expiry date:", expiryDate);
-            console.log("Current date:", nowDate);
-            console.log("Expiry timestamp:", expiryDate.getTime());
-            console.log("Current timestamp:", nowDate.getTime());
-            console.log(
-                "Is expired:",
-                expiryDate <= nowDate
-            );
-
-            if (expiryDate <= nowDate) {
-                isPremium = false;
-            }
-        }
-        }
-
-        updateAuthUI(user);
-
-        const debug = document.getElementById("premiumDebugStatus");
-
-    
-
-        console.log(
-            "Premium status:",
-            isPremium,
-            "Until:",
-            premiumUntil
-        );
-
-    } catch (error) {
-        console.error(
-            "Checking logged-in user failed:",
-            error
-        );
-
-        isPremium = false;
-        premiumUntil = null;
-
-        updateAuthUI(null);
-    }
-}
 
 function setupAuthListener() {
     if (!supabaseClient) return;
@@ -1558,15 +1442,10 @@ document.addEventListener(
         showMenu();
 
         try {
-            console.log("🟢 INIT: BEFORE SUPABASE");
             await loadSupabase();
-            console.log("🟢 INIT: AFTER SUPABASE");
 
             setupAuthListener();
-            console.log("🟢 INIT: AFTER AUTH LISTENER");
 
-            await checkLoggedInUser();
-            console.log("🟢 INIT: AFTER CHECK USER");
         } catch (error) {
             console.error(
                 "Supabase initialization error:",
