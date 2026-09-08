@@ -617,12 +617,7 @@ async function checkLoggedInUser() {
 
         const debug = document.getElementById("premiumDebugStatus");
 
-        if (debug) {
-            debug.innerHTML =
-                "👤 Logged in: Yes<br>" +
-                "👑 Premium: " + (isPremium ? "YES" : "NO") + "<br>" +
-                "⏰ Premium until: " + (premiumUntil || "Not set");
-        }
+    
 
         console.log(
             "Premium status:",
