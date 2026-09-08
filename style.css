@@ -2000,3 +2000,51 @@ body.dark-mode .notes-cancel-button {
         padding: 16px;
     }
 }
+
+/* =========================
+   DARK MODE GLOBAL FIX
+   ========================= */
+
+body.dark-mode .progress-stat,
+body.dark-mode .progress-summary {
+    background: #11141c !important;
+    color: #f1f3f8 !important;
+    border-color: #303542 !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .25) !important;
+}
+
+body.dark-mode .progress-stat small {
+    color: #aeb5c2 !important;
+}
+
+body.dark-mode .progress-summary h3,
+body.dark-mode .progress-summary p {
+    color: #f1f3f8 !important;
+}
+
+body.dark-mode .progress-summary p {
+    border-color: #303542 !important;
+}
+
+/* Common text elements that can inherit old light-mode colors */
+body.dark-mode .calculator h2,
+body.dark-mode .calculator h3,
+body.dark-mode .calculator strong,
+body.dark-mode .calculator span {
+    color: inherit;
+}
+
+/* Keep status/result areas readable */
+body.dark-mode .result,
+body.dark-mode .result-box,
+body.dark-mode .calculator-result {
+    background: #11141c !important;
+    color: #f1f3f8 !important;
+    border-color: #303542 !important;
+}
+
+/* Links inside dark tools */
+body.dark-mode .calculator a {
+    color: #a78bfa !important;
+}
+
