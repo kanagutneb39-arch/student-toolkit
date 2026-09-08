@@ -344,6 +344,10 @@ function closeTimer() {
     showMenu();
 }
 
+function closeTimetable() {
+    showMenu();
+}
+
 function closeTool() {
     showMenu();
 }
