@@ -580,6 +580,10 @@ async function checkLoggedInUser() {
             isPremium = false;
             premiumUntil = null;
         } else {
+            console.log("🧪 RAW PREMIUM VALUE:", profile?.is_premium);
+            console.log("🧪 PREMIUM VALUE TYPE:", typeof profile?.is_premium);
+            console.log("🧪 RAW EXPIRY VALUE:", profile?.premium_until);
+
             isPremium = profile?.is_premium === true;
             premiumUntil = profile?.premium_until || null;
 
