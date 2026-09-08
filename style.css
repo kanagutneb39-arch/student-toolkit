@@ -2238,3 +2238,61 @@ body.dark-mode .global-search-result:hover {
         box-sizing: border-box;
     }
 }
+
+
+/* =========================
+   FINAL MOBILE GRID OVERFLOW FIX
+   ========================= */
+
+.tools > .calculator {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.timetable-calculator {
+    min-width: 0;
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+}
+
+.timetable-wrapper {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 700px) {
+    .tools > .calculator {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .timetable-calculator {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .timetable-form {
+        grid-template-columns: 1fr;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .timetable-form select,
+    .timetable-form input,
+    .timetable-form button {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+}
