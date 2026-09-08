@@ -1562,11 +1562,15 @@ document.addEventListener(
         showMenu();
 
         try {
+            console.log("🟢 INIT: BEFORE SUPABASE");
             await loadSupabase();
+            console.log("🟢 INIT: AFTER SUPABASE");
 
             setupAuthListener();
+            console.log("🟢 INIT: AFTER AUTH LISTENER");
 
             await checkLoggedInUser();
+            console.log("🟢 INIT: AFTER CHECK USER");
         } catch (error) {
             console.error(
                 "Supabase initialization error:",
