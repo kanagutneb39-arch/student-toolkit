@@ -556,6 +556,9 @@ async function checkLoggedInUser() {
             .eq("id", user.id)
             .maybeSingle();
 
+        console.log("DEBUG PROFILE:", profile);
+        console.log("DEBUG PROFILE ERROR:", profileError);
+
         if (profileError) {
             console.error(
                 "Loading premium status failed:",
