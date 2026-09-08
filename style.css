@@ -2734,3 +2734,183 @@ header p {
     }
 }
 
+
+/* =========================================
+   STUDENT TOOLKIT — UI POLISH V2
+   ========================================= */
+
+:root {
+    --ui-accent: #6366f1;
+    --ui-accent-soft: rgba(99, 102, 241, 0.10);
+    --ui-border: rgba(0, 0, 0, 0.07);
+}
+
+/* ---------- BETTER CARDS ---------- */
+
+.tool-card {
+    border-color: var(--ui-border);
+    background: linear-gradient(145deg, #ffffff, #f9faff);
+}
+
+.tool-card:hover {
+    border-color: rgba(99, 102, 241, 0.22);
+}
+
+.tool-card span {
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.tool-card:hover span {
+    transform: scale(1.08) rotate(-2deg);
+    background: var(--ui-accent-soft);
+}
+
+/* ---------- CALCULATORS ---------- */
+
+.calculator {
+    animation: toolFadeIn 0.25s ease;
+}
+
+@keyframes toolFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- INPUT FOCUS ---------- */
+
+.calculator input:focus,
+.calculator select:focus {
+    border-color: var(--ui-accent);
+    box-shadow: 0 0 0 4px var(--ui-accent-soft);
+}
+
+/* ---------- BUTTON POLISH ---------- */
+
+.calculator button:not(.backButton) {
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white;
+    border: none;
+}
+
+.calculator button:not(.backButton):hover {
+    filter: brightness(1.05);
+}
+
+/* ---------- SEARCH ---------- */
+
+.global-search-box {
+    border-color: var(--ui-border);
+}
+
+.global-search-box:focus-within {
+    border-color: var(--ui-accent);
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.11),
+        0 0 0 4px var(--ui-accent-soft);
+}
+
+.global-search-result:hover {
+    background: var(--ui-accent-soft);
+}
+
+.global-search-result-icon {
+    transition: transform 0.2s ease;
+}
+
+.global-search-result:hover .global-search-result-icon {
+    transform: scale(1.08);
+}
+
+/* ---------- PROGRESS ---------- */
+
+.progress-stat {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.progress-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
+}
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width: 700px) {
+    .tool-card:hover span {
+        transform: none;
+    }
+
+    .calculator {
+        animation: none;
+    }
+}
+
+/* ---------- DARK MODE ---------- */
+
+body.dark-mode .tool-card {
+    background: linear-gradient(145deg, #1f2937, #18202c);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .tool-card span {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .tool-card:hover {
+    border-color: rgba(129, 140, 248, 0.35);
+}
+
+body.dark-mode .global-search-box,
+body.dark-mode .global-search-results,
+body.dark-mode .global-search-result {
+    background: #1f2937;
+    color: #f5f5f5;
+}
+
+body.dark-mode .global-search-box {
+    border-color: rgba(255, 255, 255, 0.10);
+}
+
+body.dark-mode .global-search-box input {
+    color: #f5f5f5;
+}
+
+body.dark-mode .global-search-result {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .global-search-result:hover {
+    background: rgba(129, 140, 248, 0.10);
+}
+
+body.dark-mode .global-search-result-icon {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+body.dark-mode .calculator input,
+body.dark-mode .calculator select {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .calculator input:focus,
+body.dark-mode .calculator select:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.12);
+}
+
+/* ---------- ACCESSIBILITY ---------- */
+
+.tool-card:focus-visible,
+.calculator button:focus-visible,
+.global-search-result:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.35);
+    outline-offset: 3px;
+}
+
