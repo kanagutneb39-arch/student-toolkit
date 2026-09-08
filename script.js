@@ -556,8 +556,20 @@ async function checkLoggedInUser() {
             .eq("id", user.id)
             .maybeSingle();
 
+        console.log("DEBUG USER ID:", user.id);
         console.log("DEBUG PROFILE:", profile);
         console.log("DEBUG PROFILE ERROR:", profileError);
+
+        const debugProfile = document.getElementById("premiumDebugStatus");
+
+        if (debugProfile) {
+            debugProfile.innerHTML =
+                "👤 Logged in: Yes<br>" +
+                "🆔 User ID: " + user.id + "<br>" +
+                "📦 Profile found: " + (profile ? "Yes" : "NO") + "<br>" +
+                "👑 Database Premium: " + String(profile?.is_premium) + "<br>" +
+                "⏰ Database expiry: " + String(profile?.premium_until);
+        }
 
         if (profileError) {
             console.error(
