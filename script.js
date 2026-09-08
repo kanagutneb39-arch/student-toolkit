@@ -583,13 +583,25 @@ async function checkLoggedInUser() {
             isPremium = profile?.is_premium === true;
             premiumUntil = profile?.premium_until || null;
 
-            if (
-                isPremium &&
-                premiumUntil &&
-                new Date(premiumUntil) <= new Date()
-            ) {
+            if (isPremium && premiumUntil) {
+            const expiryDate = new Date(premiumUntil);
+            const nowDate = new Date();
+
+            console.log("🧪 PREMIUM DATE DEBUG");
+            console.log("Database expiry:", premiumUntil);
+            console.log("Expiry date:", expiryDate);
+            console.log("Current date:", nowDate);
+            console.log("Expiry timestamp:", expiryDate.getTime());
+            console.log("Current timestamp:", nowDate.getTime());
+            console.log(
+                "Is expired:",
+                expiryDate <= nowDate
+            );
+
+            if (expiryDate <= nowDate) {
                 isPremium = false;
             }
+        }
         }
 
         updateAuthUI(user);
