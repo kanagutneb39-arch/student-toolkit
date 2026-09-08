@@ -564,6 +564,7 @@ async function checkLoggedInUser() {
         console.log("DEBUG USER ID:", user.id);
         console.log("DEBUG PROFILE:", profile);
         console.log("DEBUG PROFILE ERROR:", profileError);
+        console.log("🔥 PROFILE RAW RESULT:", JSON.stringify({ profile, profileError }));
 
         const debugProfile = document.getElementById("premiumDebugStatus");
 
