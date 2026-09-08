@@ -529,7 +529,12 @@ function updateAuthUI(user) {
 
 
 async function checkLoggedInUser() {
-    if (!supabaseClient) return;
+    console.log("🔥 CHECK LOGGED IN USER STARTED");
+
+    if (!supabaseClient) {
+        console.log("❌ Supabase client is missing");
+        return;
+    }
 
     try {
         const {
