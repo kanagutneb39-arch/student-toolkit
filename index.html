@@ -182,6 +182,23 @@
 
 
 
+
+    <!-- Global Search -->
+    <div class="global-search-container">
+        <div class="global-search-box">
+            <span class="global-search-icon">🔎</span>
+            <input
+                id="globalSearchInput"
+                type="search"
+                placeholder="Search Student Toolkit..."
+                autocomplete="off"
+                oninput="searchToolkit()"
+                onkeydown="handleGlobalSearchKey(event)"
+            >
+        </div>
+        <div id="globalSearchResults" class="global-search-results"></div>
+    </div>
+
 <main class="tools" id="toolsMenu">
 
     <div class="tool-card" onclick="openPercentage()">
