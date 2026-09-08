@@ -214,11 +214,32 @@ function hideAllTools() {
 }
 
 
+function restoreToolPositions() {
+    document.querySelectorAll(".calculator[data-moved-tool]").forEach(tool => {
+        const placeholder = tool._toolPlaceholder;
+
+        if (placeholder && placeholder.parentNode) {
+            placeholder.parentNode.insertBefore(tool, placeholder);
+            placeholder.remove();
+        }
+
+        tool.removeAttribute("data-moved-tool");
+        tool.style.display = "none";
+        tool._toolPlaceholder = null;
+    });
+
+    document.querySelectorAll(".tool-card[data-tool-hidden]").forEach(card => {
+        card.style.display = "";
+        card.removeAttribute("data-tool-hidden");
+    });
+}
+
+
 function showMenu() {
-    hideAllTools();
+    restoreToolPositions();
 
     const menu =
-        document.getElementById("toolMenu");
+        document.getElementById("toolsMenu");
 
     if (menu) {
         menu.style.display = "grid";
@@ -227,14 +248,83 @@ function showMenu() {
 
 
 function openTool(toolId) {
-    hideAllTools();
+    restoreToolPositions();
+
+    const menu =
+        document.getElementById("toolsMenu");
+
+    if (!menu) return;
+
+    const cardMap = {
+        percentageTool: "openPercentage",
+        marksTool: "openMarks",
+        cgpaTool: "openCGPA",
+        timerTool: "openTimer",
+        timetableTool: "openTimetable",
+        converterTool: "openConverter",
+        countdownTool: "openCountdown",
+        todoTool: "openTodo",
+        notesTool: "openNotes",
+        quizTool: "openQuiz",
+        progressTool: "openProgress",
+        textbooksTool: "openTextbooks"
+    };
+
+    const functionName = cardMap[toolId];
 
     const tool =
         document.getElementById(toolId);
 
-    if (tool) {
+    if (!tool || !functionName) return;
+
+    const cards =
+        menu.querySelectorAll(".tool-card");
+
+    let targetCard = null;
+
+    cards.forEach(card => {
+        const onclick =
+            card.getAttribute("onclick") || "";
+
+        if (onclick.includes(functionName + "(")) {
+            targetCard = card;
+        }
+    });
+
+    if (!targetCard) {
         tool.style.display = "block";
+        return;
     }
+
+    const placeholder =
+        document.createElement("span");
+
+    placeholder.style.display = "none";
+    placeholder.setAttribute(
+        "data-tool-placeholder",
+        toolId
+    );
+
+    tool.parentNode.insertBefore(
+        placeholder,
+        tool
+    );
+
+    tool._toolPlaceholder = placeholder;
+    tool.setAttribute("data-moved-tool", "true");
+
+    targetCard.parentNode.insertBefore(
+        tool,
+        targetCard
+    );
+
+    targetCard.style.display = "none";
+    targetCard.setAttribute(
+        "data-tool-hidden",
+        "true"
+    );
+
+    tool.style.display = "block";
 }
 
 
@@ -1464,6 +1554,175 @@ document.addEventListener(
 /* =========================
    PROGRESS / STATISTICS
    ========================= */
+
+
+// ============================================================
+// GLOBAL SEARCH
+// ============================================================
+
+const GLOBAL_SEARCH_ITEMS = [
+    {
+        title: "Percentage Calculator",
+        icon: "🧮",
+        keywords: "percentage percent calculator maths math",
+        action: "openPercentage"
+    },
+    {
+        title: "Marks Calculator",
+        icon: "📊",
+        keywords: "marks mark calculator percentage grade exam results",
+        action: "openMarks"
+    },
+    {
+        title: "CGPA Calculator",
+        icon: "🎯",
+        keywords: "cgpa grade point calculator grades",
+        action: "openCGPA"
+    },
+    {
+        title: "Study Timer",
+        icon: "⏱️",
+        keywords: "timer study focus pomodoro time",
+        action: "openTimer"
+    },
+    {
+        title: "Study Timetable",
+        icon: "📅",
+        keywords: "timetable schedule study plan weekly",
+        action: "openTimetable"
+    },
+    {
+        title: "Unit Converter",
+        icon: "🔄",
+        keywords: "converter conversion units length weight temperature volume",
+        action: "openConverter"
+    },
+    {
+        title: "Exam Countdown",
+        icon: "⏳",
+        keywords: "countdown exam date days time remaining",
+        action: "openCountdown"
+    },
+    {
+        title: "To-Do List",
+        icon: "✅",
+        keywords: "todo tasks homework assignment assignments work",
+        action: "openTodo"
+    },
+    {
+        title: "Notes",
+        icon: "📒",
+        keywords: "notes note revision study writing",
+        action: "openNotes"
+    },
+    {
+        title: "Quiz",
+        icon: "🧠",
+        keywords: "quiz questions practice test science mathematics general knowledge",
+        action: "openQuiz"
+    },
+    {
+        title: "Progress",
+        icon: "📈",
+        keywords: "progress statistics stats activity study performance",
+        action: "openProgress"
+    },
+    {
+        title: "NCERT Textbooks",
+        icon: "📚",
+        keywords: "ncert textbooks books class 1 2 3 4 5 6 7 8 9 10 11 12",
+        action: "openTextbooks"
+    }
+];
+
+function escapeGlobalSearchText(text) {
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function searchToolkit() {
+    const input = document.getElementById("globalSearchInput");
+    const results = document.getElementById("globalSearchResults");
+
+    if (!input || !results) return;
+
+    const query = input.value.trim().toLowerCase();
+
+    if (!query) {
+        results.innerHTML = "";
+        results.classList.remove("show");
+        return;
+    }
+
+    const matches = GLOBAL_SEARCH_ITEMS
+        .filter(item => {
+            const text = `${item.title} ${item.keywords}`.toLowerCase();
+            return text.includes(query);
+        })
+        .slice(0, 6);
+
+    if (matches.length === 0) {
+        results.innerHTML = `
+            <div class="global-search-empty">
+                No tool found for "${escapeGlobalSearchText(input.value.trim())}"
+            </div>
+        `;
+        results.classList.add("show");
+        return;
+    }
+
+    results.innerHTML = matches.map(item => `
+        <button
+            type="button"
+            class="global-search-result"
+            onclick="${item.action}(); clearGlobalSearch();"
+        >
+            <span class="global-search-result-icon">${item.icon}</span>
+            <span>
+                <strong>${item.title}</strong>
+                <small>Open tool →</small>
+            </span>
+        </button>
+    `).join("");
+
+    results.classList.add("show");
+}
+
+function handleGlobalSearchKey(event) {
+    if (event.key !== "Enter") return;
+
+    const input = document.getElementById("globalSearchInput");
+    if (!input) return;
+
+    const query = input.value.trim().toLowerCase();
+    if (!query) return;
+
+    const match = GLOBAL_SEARCH_ITEMS.find(item => {
+        const text = `${item.title} ${item.keywords}`.toLowerCase();
+        return text.includes(query);
+    });
+
+    if (match && typeof window[match.action] === "function") {
+        window[match.action]();
+        clearGlobalSearch();
+    }
+}
+
+function clearGlobalSearch() {
+    const input = document.getElementById("globalSearchInput");
+    const results = document.getElementById("globalSearchResults");
+
+    if (input) input.value = "";
+
+    if (results) {
+        results.innerHTML = "";
+        results.classList.remove("show");
+    }
+}
 
 const PROGRESS_SESSIONS_KEY = "studentToolkitStudySessions";
 
