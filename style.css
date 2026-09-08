@@ -2968,3 +2968,38 @@ body.dark-mode .calculator select:focus {
     }
 }
 
+
+/* =========================================
+   FIX CALCULATOR WIDTH AFTER TOOL REPOSITION
+   ========================================= */
+
+.tools > .calculator {
+    width: calc(100% - 40px);
+    max-width: 500px;
+    min-width: 0;
+    justify-self: center;
+}
+
+.tools > .timetable-calculator {
+    width: calc(100% - 40px);
+    max-width: 1200px;
+}
+
+@media (max-width: 700px) {
+    .tools > .calculator {
+        width: calc(100% - 30px);
+        max-width: 500px;
+        justify-self: center;
+    }
+
+    .tools > .timetable-calculator {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #marksTool,
+    #cgpaTool {
+        max-width: 500px !important;
+    }
+}
+
