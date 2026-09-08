@@ -1999,9 +1999,7 @@ function closeCountdown() {
         countdown.style.display = "none";
     }
 
-    if (typeof showHome === "function") {
-        showHome();
-    }
+    showMenu();
 }
 
 function startCountdown() {
@@ -2129,9 +2127,7 @@ function closeTodo() {
         todo.style.display = "none";
     }
 
-    if (typeof showHome === "function") {
-        showHome();
-    }
+    showMenu();
 }
 
 function addTodo() {
@@ -2343,9 +2339,7 @@ function closeNotes() {
         notes.style.display = "none";
     }
 
-    if (typeof showHome === "function") {
-        showHome();
-    }
+    showMenu();
 }
 
 function saveNote() {
@@ -2701,9 +2695,7 @@ function closeQuiz() {
         quiz.style.display = "none";
     }
 
-    if (typeof showHome === "function") {
-        showHome();
-    }
+    showMenu();
 }
 
 function startQuiz() {
@@ -2952,9 +2944,7 @@ function closeTextbooks() {
         textbooks.style.display = "none";
     }
 
-    if (typeof showHome === "function") {
-        showHome();
-    }
+    showMenu();
 }
 
 
