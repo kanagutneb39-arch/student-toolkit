@@ -1462,6 +1462,122 @@ document.addEventListener(
 );
 
 /* =========================
+   PROGRESS / STATISTICS
+   ========================= */
+
+const PROGRESS_SESSIONS_KEY = "studentToolkitStudySessions";
+
+function getStudySessions() {
+    try {
+        return Number(localStorage.getItem(PROGRESS_SESSIONS_KEY)) || 0;
+    } catch (error) {
+        return 0;
+    }
+}
+
+function recordStudySession() {
+    try {
+        const sessions = getStudySessions() + 1;
+        localStorage.setItem(PROGRESS_SESSIONS_KEY, String(sessions));
+    } catch (error) {
+        // Ignore localStorage errors.
+    }
+}
+
+function getProgressStats() {
+    let todos = [];
+    let notes = [];
+    let quizScores = {};
+
+    try {
+        todos = JSON.parse(
+            localStorage.getItem(TODO_STORAGE_KEY) || "[]"
+        );
+
+        notes = JSON.parse(
+            localStorage.getItem(NOTES_STORAGE_KEY) || "[]"
+        );
+
+        quizScores = JSON.parse(
+            localStorage.getItem(QUIZ_STORAGE_KEY) || "{}"
+        );
+    } catch (error) {
+        // Use empty statistics if stored data is invalid.
+    }
+
+    const completedTasks = todos.filter(
+        todo => todo.completed
+    ).length;
+
+    const totalTasks = todos.length;
+
+    const taskPercent = totalTasks
+        ? Math.round((completedTasks / totalTasks) * 100)
+        : 0;
+
+    const quizEntries = Object.values(quizScores)
+        .filter(score => typeof score === "number");
+
+    const quizAttempts = quizEntries.length;
+
+    const quizAccuracy = quizEntries.length
+        ? Math.round(
+            quizEntries.reduce(
+                (sum, score) => sum + score,
+                0
+            ) / quizEntries.length
+        )
+        : 0;
+
+    return {
+        completedTasks,
+        totalTasks,
+        taskPercent,
+        notes: notes.length,
+        quizAttempts,
+        quizAccuracy,
+        sessions: getStudySessions()
+    };
+}
+
+function updateProgress() {
+    const stats = getProgressStats();
+
+    const tasks = document.getElementById("progressTasks");
+    const notes = document.getElementById("progressNotes");
+    const quizAttempts =
+        document.getElementById("progressQuizAttempts");
+    const sessions =
+        document.getElementById("progressSessions");
+    const taskPercent =
+        document.getElementById("progressTaskPercent");
+    const quizAccuracy =
+        document.getElementById("progressQuizAccuracy");
+    const totalActivity =
+        document.getElementById("progressTotalActivity");
+
+    if (tasks) tasks.textContent = stats.completedTasks;
+    if (notes) notes.textContent = stats.notes;
+    if (quizAttempts) quizAttempts.textContent = stats.quizAttempts;
+    if (sessions) sessions.textContent = stats.sessions;
+    if (taskPercent) taskPercent.textContent = `${stats.taskPercent}%`;
+    if (quizAccuracy) quizAccuracy.textContent = `${stats.quizAccuracy}%`;
+
+    if (totalActivity) {
+        totalActivity.textContent =
+            stats.completedTasks +
+            stats.notes +
+            stats.quizAttempts +
+            stats.sessions;
+    }
+}
+
+function openProgress() {
+    openTool("progressTool");
+    updateProgress();
+}
+
+/* =========================
    EXAM COUNTDOWN
    ========================= */
 

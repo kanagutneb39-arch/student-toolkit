@@ -247,6 +247,12 @@
             <h2>Quiz</h2>
             <p>Test your knowledge with quick multiple-choice quizzes.</p>
         </div>
+        <div class="tool-card" onclick="openProgress()">
+            <span>📊</span>
+            <h2>Progress</h2>
+            <p>See your study activity and progress.</p>
+        </div>
+
         <div class="tool-card" onclick="openTextbooks()">
             <span>📚</span>
             <h2>NCERT Textbooks</h2>
@@ -254,6 +260,72 @@
         </div>
 
 
+
+
+<!-- =========================
+     PROGRESS / STATISTICS
+     ========================= -->
+
+<section id="progressTool" class="calculator progress-calculator" style="display:none;">
+
+    <h2>📊 Your Progress</h2>
+
+    <p class="calculator-description">
+        A quick look at your Student Toolkit activity.
+    </p>
+
+    <div class="progress-grid">
+
+        <div class="progress-stat">
+            <span>✅</span>
+            <strong id="progressTasks">0</strong>
+            <small>Tasks Completed</small>
+        </div>
+
+        <div class="progress-stat">
+            <span>📝</span>
+            <strong id="progressNotes">0</strong>
+            <small>Notes Created</small>
+        </div>
+
+        <div class="progress-stat">
+            <span>🧠</span>
+            <strong id="progressQuizAttempts">0</strong>
+            <small>Quiz Attempts</small>
+        </div>
+
+        <div class="progress-stat">
+            <span>⏱️</span>
+            <strong id="progressSessions">0</strong>
+            <small>Study Sessions</small>
+        </div>
+
+    </div>
+
+    <div class="progress-summary">
+        <h3>📈 Overview</h3>
+
+        <p>
+            Task completion:
+            <strong id="progressTaskPercent">0%</strong>
+        </p>
+
+        <p>
+            Quiz accuracy:
+            <strong id="progressQuizAccuracy">0%</strong>
+        </p>
+
+        <p>
+            Total activity:
+            <strong id="progressTotalActivity">0</strong>
+        </p>
+    </div>
+
+    <button class="backButton" onclick="showMenu()">
+        ← Back to Tools
+    </button>
+
+</section>
 
 
 <!-- =========================
