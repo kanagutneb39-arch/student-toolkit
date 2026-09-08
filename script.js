@@ -328,6 +328,22 @@ function openTool(toolId) {
 }
 
 
+function closePercentage() {
+    showMenu();
+}
+
+function closeMarks() {
+    showMenu();
+}
+
+function closeCGPA() {
+    showMenu();
+}
+
+function closeTimer() {
+    showMenu();
+}
+
 function closeTool() {
     showMenu();
 }
@@ -888,7 +904,7 @@ function setTimer(minutes) {
 // ============================================================
 
 function openTimetable() {
-    hideAllTools();
+    openTool("timetableTool");
 
     const tool =
         document.getElementById("timetableTool");
@@ -898,14 +914,6 @@ function openTimetable() {
     }
 
     renderTimetable();
-
-    if (timetableIsEmpty()) {
-        showFancyAlert(
-            "Almost there! 📅",
-            "Your timetable is empty. Add your first study session to get started! 📚✨",
-            "📚"
-        );
-    }
 }
 
 
@@ -1194,7 +1202,7 @@ const converterUnits = {
 
 
 function openConverter() {
-    hideAllTools();
+    openTool("converterTool");
 
     const tool =
         document.getElementById("converterTool");
@@ -1956,13 +1964,7 @@ function renderCountdown(data) {
 function openCountdown() {
     stopCountdownInterval();
 
-    if (typeof hideAllTools === "function") {
-        hideAllTools();
-    }
-
-    document.querySelectorAll(".calculator").forEach(function (tool) {
-        tool.style.display = "none";
-    });
+    openTool("countdownTool");
 
     const countdown = document.getElementById("countdownTool");
 
@@ -2106,13 +2108,7 @@ function saveTodos(todos) {
 }
 
 function openTodo() {
-    if (typeof hideAllTools === "function") {
-        hideAllTools();
-    }
-
-    document.querySelectorAll(".calculator").forEach(function (tool) {
-        tool.style.display = "none";
-    });
+    openTool("todoTool");
 
     const todo = document.getElementById("todoTool");
 
@@ -2324,13 +2320,7 @@ function saveNotes(notes) {
 }
 
 function openNotes() {
-    if (typeof hideAllTools === "function") {
-        hideAllTools();
-    }
-
-    document.querySelectorAll(".calculator").forEach(function (tool) {
-        tool.style.display = "none";
-    });
+    openTool("notesTool");
 
     const notes = document.getElementById("notesTool");
 
@@ -2690,9 +2680,7 @@ function getQuizQuestions() {
 }
 
 function openQuiz() {
-    document.querySelectorAll(".calculator").forEach(tool => {
-        tool.style.display = "none";
-    });
+    openTool("quizTool");
 
     const quiz = document.getElementById("quizTool");
 
@@ -2944,9 +2932,7 @@ function finishQuiz() {
    ========================= */
 
 function openTextbooks() {
-    document.querySelectorAll(".calculator").forEach(tool => {
-        tool.style.display = "none";
-    });
+    openTool("textbooksTool");
 
     const textbooks = document.getElementById("textbooksTool");
 
