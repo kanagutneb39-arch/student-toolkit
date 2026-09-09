@@ -697,6 +697,24 @@ function calculatePercentage() {
 }
 
 
+
+function setupTimetableScrollHint() {
+    const wrapper = document.querySelector(".timetable-wrapper");
+
+    if (!wrapper || wrapper.dataset.hintReady === "true") {
+        return;
+    }
+
+    wrapper.dataset.hintReady = "true";
+
+    wrapper.addEventListener("scroll", () => {
+        if (wrapper.scrollLeft > 5) {
+            wrapper.classList.add("scrolled");
+        }
+    }, { passive: true });
+}
+
+
 // ============================================================
 // MARKS CALCULATOR
 // ============================================================
@@ -706,15 +724,52 @@ function openMarks() {
 }
 
 
-function calculateMarks() {
-    const marks =
-        Number(
-            document.getElementById("marksObtained")?.value
-        );
+function addSubject() {
+    const subjects = document.getElementById("subjects");
 
-    const total =
-        Number(
-            document.getElementById("marksTotal")?.value
+    if (!subjects) return;
+
+    const row = document.createElement("div");
+    row.className = "subject-row";
+
+    row.innerHTML = `
+        <input
+            type="text"
+            class="subject-name"
+            placeholder="Subject"
+        >
+
+        <input
+            type="number"
+            class="marks-obtained"
+            placeholder="Obtained"
+            min="0"
+        >
+
+        <input
+            type="number"
+            class="marks-total"
+            placeholder="Total"
+            min="1"
+        >
+
+        <button
+            type="button"
+            class="remove-subject"
+            onclick="this.parentElement.remove()"
+        >
+            ✕
+        </button>
+    `;
+
+    subjects.appendChild(row);
+}
+
+
+function calculateMarks() {
+    const rows =
+        document.querySelectorAll(
+            "#subjects .subject-row"
         );
 
     const result =
@@ -722,35 +777,58 @@ function calculateMarks() {
 
     if (!result) return;
 
-    if (
-        !Number.isFinite(marks) ||
-        !Number.isFinite(total)
-    ) {
+    if (!rows.length) {
         result.textContent =
-            "Please enter valid marks.";
+            "Please add at least one subject.";
 
         return;
     }
 
-    if (total <= 0) {
-        result.textContent =
-            "Total marks must be greater than zero.";
+    let obtainedTotal = 0;
+    let maximumTotal = 0;
 
-        return;
-    }
+    for (const row of rows) {
+        const obtained =
+            Number(
+                row.querySelector(".marks-obtained")?.value
+            );
 
-    if (marks < 0 || marks > total) {
-        result.textContent =
-            "Obtained marks must be between 0 and total marks.";
+        const total =
+            Number(
+                row.querySelector(".marks-total")?.value
+            );
 
-        return;
+        if (
+            !Number.isFinite(obtained) ||
+            !Number.isFinite(total) ||
+            total <= 0 ||
+            obtained < 0 ||
+            obtained > total
+        ) {
+            result.textContent =
+                "Please enter valid marks for every subject.";
+
+            return;
+        }
+
+        obtainedTotal += obtained;
+        maximumTotal += total;
     }
 
     const percentage =
-        (marks / total) * 100;
+        (obtainedTotal / maximumTotal) * 100;
 
-    result.textContent =
-        `${percentage.toFixed(2)}%`;
+    result.innerHTML = `
+        <h3>📊 Your Result</h3>
+        <p>
+            <strong>${obtainedTotal}</strong>
+            / ${maximumTotal} marks
+        </p>
+        <p>
+            Percentage:
+            <strong>${percentage.toFixed(2)}%</strong>
+        </p>
+    `;
 }
 
 
@@ -760,6 +838,44 @@ function calculateMarks() {
 
 function openCGPA() {
     openTool("cgpaTool");
+}
+
+
+function addCGPASubject() {
+    const subjects =
+        document.getElementById("cgpaSubjects");
+
+    if (!subjects) return;
+
+    const row = document.createElement("div");
+    row.className = "cgpa-row";
+
+    row.innerHTML = `
+        <input
+            type="text"
+            class="cgpa-subject-name"
+            placeholder="Subject"
+        >
+
+        <input
+            type="number"
+            class="cgpa-input"
+            placeholder="Grade Point"
+            min="0"
+            max="10"
+            step="0.1"
+        >
+
+        <button
+            type="button"
+            class="remove-cgpa-subject"
+            onclick="this.parentElement.remove()"
+        >
+            ✕
+        </button>
+    `;
+
+    subjects.appendChild(row);
 }
 
 
@@ -784,31 +900,33 @@ function calculateCGPA() {
     let total = 0;
     let count = 0;
 
-    inputs.forEach(input => {
-        const value =
-            Number(input.value);
+    for (const input of inputs) {
+        const value = Number(input.value);
 
         if (
-            input.value.trim() !== "" &&
-            Number.isFinite(value)
+            input.value.trim() === "" ||
+            !Number.isFinite(value) ||
+            value < 0 ||
+            value > 10
         ) {
-            total += value;
-            count++;
+            result.textContent =
+                "Please enter valid grade points from 0 to 10.";
+
+            return;
         }
-    });
 
-    if (count === 0) {
-        result.textContent =
-            "Please enter at least one grade point.";
-
-        return;
+        total += value;
+        count++;
     }
 
-    const cgpa =
-        total / count;
+    const cgpa = total / count;
 
-    result.textContent =
-        `CGPA: ${cgpa.toFixed(2)}`;
+    result.innerHTML = `
+        <h3>🎯 Your CGPA</h3>
+        <p>
+            <strong>${cgpa.toFixed(2)}</strong>
+        </p>
+    `;
 }
 
 
@@ -918,6 +1036,7 @@ function openTimetable() {
     }
 
     renderTimetable();
+    setupTimetableScrollHint();
 }
 
 

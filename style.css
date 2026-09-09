@@ -3050,3 +3050,65 @@ body.dark-mode .calculator select:focus {
     }
 }
 
+
+/* =========================================
+   TOOL REPOSITION — CALCULATOR GRID FIX
+   ========================================= */
+
+.tools {
+    width: 100%;
+    min-width: 0;
+}
+
+.tools > .calculator {
+    grid-column: 1 / -1;
+    width: calc(100% - 40px);
+    max-width: 500px;
+    min-width: 0;
+    justify-self: center;
+    align-self: start;
+}
+
+@media (max-width: 700px) {
+    .tools > .calculator {
+        grid-column: 1 / -1;
+        width: calc(100% - 30px);
+        max-width: 500px;
+        min-width: 0;
+        justify-self: center;
+    }
+}
+
+
+/* Timetable horizontal-scroll hint — visual only, no layout changes */
+@media (max-width: 700px) {
+    .timetable-wrapper {
+        position: relative;
+    }
+
+    .timetable-wrapper::after {
+        content: "↔ Swipe to see more";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 5;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(20, 24, 35, 0.88);
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+}
+
+
+/* Hide timetable scroll hint after horizontal scrolling */
+@media (max-width: 700px) {
+    .timetable-wrapper.scrolled::after {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+}
