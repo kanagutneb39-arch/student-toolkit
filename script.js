@@ -3043,21 +3043,108 @@ function finishQuiz() {
 
 
 /* =========================
-   NCERT TEXTBOOKS
+   TEXTBOOK LIBRARY
    ========================= */
+
+const TEXTBOOK_SOURCES = {
+    ncert: {
+        name: "NCERT",
+        icon: "🇮🇳",
+        description: "Official NCERT textbooks for Classes 1–12.",
+        url: "https://ncert.nic.in/textbook.php",
+        button: "Open NCERT →",
+        subjects: [
+            ["📐", "Mathematics", "Official NCERT Mathematics resources"],
+            ["🔬", "Science", "Official NCERT Science resources"],
+            ["🌍", "Social Science", "Official NCERT Social Science resources"],
+            ["📖", "English", "Official NCERT English resources"],
+            ["🇮🇳", "Hindi", "Official NCERT Hindi resources"]
+        ]
+    },
+
+    maharashtra: {
+        name: "Maharashtra — Balbharati",
+        icon: "🟠",
+        description: "Official Maharashtra State Bureau of Textbook Production & Curriculum Research resources.",
+        url: "https://books.ebalbharati.in/ebook.aspx",
+        button: "Open Balbharati →",
+        subjects: [
+            ["📚", "Textbook Library", "Official e-Balbharati books"],
+            ["📝", "Workbooks", "Official Balbharati workbooks"],
+            ["👩‍🏫", "Teacher Handbooks", "Official teaching resources"]
+        ]
+    },
+
+    tamilnadu: {
+        name: "Tamil Nadu — Textbook Corporation",
+        icon: "🔴",
+        description: "Official Tamil Nadu Textbook and Educational Services Corporation resources.",
+        url: "https://www.textbookcorp.in/",
+        button: "Open Tamil Nadu Textbooks →",
+        subjects: [
+            ["📚", "School Textbooks", "Official Tamil Nadu textbook portal"],
+            ["🌐", "Tamil & English Medium", "Official medium-specific textbook resources"],
+            ["📋", "Student Resources", "Official corporation information and resources"]
+        ]
+    },
+
+    kerala: {
+        name: "Kerala — SCERT",
+        icon: "🟢",
+        description: "Official Kerala SCERT textbook and curriculum resources.",
+        url: "https://scert.kerala.gov.in/",
+        button: "Open Kerala SCERT →",
+        subjects: [
+            ["📚", "Textbooks", "Official Kerala SCERT textbook resources"],
+            ["🧪", "Science & Mathematics", "Official subject resources"],
+            ["🗣️", "Languages", "Official language-medium resources"]
+        ]
+    },
+
+    karnataka: {
+        name: "Karnataka — Textbook Society",
+        icon: "🔵",
+        description: "Official Karnataka state textbook resources from the Karnataka Textbook Society.",
+        url: "https://textbooks.karnataka.gov.in/",
+        button: "Open Karnataka Textbooks →",
+        subjects: [
+            ["📚", "State Textbooks", "Official Karnataka school textbook resources"],
+            ["📐", "Mathematics", "Official Karnataka Mathematics resources"],
+            ["🔬", "Science", "Official Karnataka Science resources"],
+            ["🌍", "Social Science", "Official Karnataka Social Science resources"]
+        ]
+    },
+
+    epustakalaya: {
+        name: "Rashtriya e-Pustakalaya",
+        icon: "📖",
+        description: "Government digital library with books across languages, genres and levels.",
+        url: "https://www.ndl.ncert.gov.in/",
+        button: "Open e-Pustakalaya →",
+        subjects: [
+            ["📚", "Digital Books", "Explore the national digital book collection"],
+            ["🌐", "Languages", "Discover books across languages"],
+            ["📖", "Beyond Textbooks", "Explore additional educational reading"]
+        ]
+    }
+};
 
 function openTextbooks() {
     openTool("textbooksTool");
 
-    const textbooks = document.getElementById("textbooksTool");
+    const textbooks =
+        document.getElementById("textbooksTool");
 
     if (textbooks) {
         textbooks.style.display = "block";
     }
+
+    updateTextbookLibrary();
 }
 
 function closeTextbooks() {
-    const textbooks = document.getElementById("textbooksTool");
+    const textbooks =
+        document.getElementById("textbooksTool");
 
     if (textbooks) {
         textbooks.style.display = "none";
@@ -3066,17 +3153,90 @@ function closeTextbooks() {
     showMenu();
 }
 
+function updateTextbookLibrary() {
+    const sourceSelect =
+        document.getElementById("textbookBoardSelect");
 
-function updateNCERTClass() {
-    const select = document.getElementById("ncertClassSelect");
-    const display = document.getElementById("selectedNCERTClass");
+    const classSelect =
+        document.getElementById("textbookClassSelect");
 
-    if (!select || !display) return;
+    const display =
+        document.getElementById("selectedTextbookSource");
 
-    const classNumber = select.value;
+    const description =
+        document.getElementById("selectedTextbookDescription");
+
+    const cards =
+        document.getElementById("textbookLibraryCards");
+
+    if (
+        !sourceSelect ||
+        !classSelect ||
+        !display ||
+        !description ||
+        !cards
+    ) {
+        return;
+    }
+
+    const source =
+        TEXTBOOK_SOURCES[sourceSelect.value];
+
+    if (!source) return;
+
+    const classNumber =
+        classSelect.value;
 
     display.textContent =
-        `📖 Class ${classNumber} Textbooks`;
+        `${source.icon} ${source.name} — Class ${classNumber}`;
+
+    description.textContent =
+        source.description;
+
+    cards.innerHTML =
+        source.subjects.map(
+            ([icon, title, cardDescription]) => `
+                <a
+                    class="textbook-card"
+                    href="${source.url}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <span>${icon}</span>
+                    <strong>${title}</strong>
+                    <small>${cardDescription}</small>
+                    <b>${source.button}</b>
+                </a>
+            `
+        ).join("");
+
+    const sourceButton =
+        document.getElementById(
+            "openTextbookSourceButton"
+        );
+
+    if (sourceButton) {
+        sourceButton.textContent =
+            `🔗 ${source.name} — Official Source`;
+    }
+}
+
+function openSelectedTextbookSource() {
+    const sourceSelect =
+        document.getElementById("textbookBoardSelect");
+
+    if (!sourceSelect) return;
+
+    const source =
+        TEXTBOOK_SOURCES[sourceSelect.value];
+
+    if (source) {
+        window.open(
+            source.url,
+            "_blank",
+            "noopener,noreferrer"
+        );
+    }
 }
 
 /* =========================

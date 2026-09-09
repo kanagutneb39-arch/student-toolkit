@@ -272,7 +272,7 @@
 
         <div class="tool-card" onclick="openTextbooks()">
             <span>📚</span>
-            <h2>NCERT Textbooks</h2>
+            <h2>Textbook Library</h2>
             <p>Access official NCERT textbook sources for Classes 1–12.</p>
         </div>
 
@@ -571,19 +571,31 @@
 
 
 <section id="textbooksTool" class="calculator textbooks-calculator">
-    <h2>📚 NCERT Textbooks</h2>
+    <h2>📚 Textbook Library</h2>
+
     <p class="calculator-description">
-        Access official NCERT textbooks for Classes 1–12.
+        Find official textbooks and learning resources from trusted education portals.
     </p>
 
     <div class="textbook-source-note">
-        🔗 Student Toolkit links directly to the official NCERT textbook portal.
-        We do not host or redistribute NCERT textbook files.
+        🔗 Student Toolkit links to official or government education portals.
+        We do not host or redistribute copyrighted textbook files.
     </div>
 
-    <label for="ncertClassSelect">Choose Class</label>
+    <label for="textbookBoardSelect">Choose Board / Source</label>
 
-    <select id="ncertClassSelect" onchange="updateNCERTClass()">
+    <select id="textbookBoardSelect" onchange="updateTextbookLibrary()">
+        <option value="ncert">🇮🇳 NCERT</option>
+        <option value="maharashtra">🟠 Maharashtra — Balbharati</option>
+        <option value="tamilnadu">🔴 Tamil Nadu — Textbook Corporation</option>
+        <option value="kerala">🟢 Kerala — SCERT</option>
+        <option value="karnataka">🔵 Karnataka — Textbook Society</option>
+        <option value="epustakalaya">📖 Rashtriya e-Pustakalaya</option>
+    </select>
+
+    <label for="textbookClassSelect">Choose Class / Level</label>
+
+    <select id="textbookClassSelect" onchange="updateTextbookLibrary()">
         <option value="1">Class 1</option>
         <option value="2">Class 2</option>
         <option value="3">Class 3</option>
@@ -598,72 +610,30 @@
         <option value="12">Class 12</option>
     </select>
 
-    <div id="selectedNCERTClass" class="selected-textbook-class">
-        📖 Class 10 Textbooks
+    <div id="selectedTextbookSource" class="selected-textbook-class">
+        📖 NCERT — Class 10
     </div>
 
-    <div class="textbook-grid">
+    <p id="selectedTextbookDescription" class="calculator-description">
+        Official NCERT textbooks for Classes 1–12.
+    </p>
 
-        <a class="textbook-card"
-           href="https://ncert.nic.in/textbook.php"
-           target="_blank"
-           rel="noopener noreferrer">
-            <span>📐</span>
-            <strong>Mathematics</strong>
-            <small>Official NCERT Mathematics textbook</small>
-            <b>Open NCERT →</b>
-        </a>
+    <div id="textbookLibraryCards" class="textbook-grid"></div>
 
-        <a class="textbook-card"
-           href="https://ncert.nic.in/textbook.php"
-           target="_blank"
-           rel="noopener noreferrer">
-            <span>🔬</span>
-            <strong>Science</strong>
-            <small>Official NCERT Science textbook</small>
-            <b>Open NCERT →</b>
-        </a>
+    <button
+        id="openTextbookSourceButton"
+        class="official-ncert-button"
+        type="button"
+        onclick="openSelectedTextbookSource()"
+    >
+        🔗 Open Official Source
+    </button>
 
-        <a class="textbook-card"
-           href="https://ncert.nic.in/textbook.php"
-           target="_blank"
-           rel="noopener noreferrer">
-            <span>🌍</span>
-            <strong>Social Science</strong>
-            <small>Official NCERT Social Science books</small>
-            <b>Open NCERT →</b>
-        </a>
-
-        <a class="textbook-card"
-           href="https://ncert.nic.in/textbook.php"
-           target="_blank"
-           rel="noopener noreferrer">
-            <span>📖</span>
-            <strong>English</strong>
-            <small>Official NCERT English textbooks</small>
-            <b>Open NCERT →</b>
-        </a>
-
-        <a class="textbook-card"
-           href="https://ncert.nic.in/textbook.php"
-           target="_blank"
-           rel="noopener noreferrer">
-            <span>🇮🇳</span>
-            <strong>Hindi</strong>
-            <small>Official NCERT Hindi textbooks</small>
-            <b>Open NCERT →</b>
-        </a>
-
-    </div>
-
-    <a class="official-ncert-button"
-       href="https://ncert.nic.in/textbook.php"
-       target="_blank"
-       rel="noopener noreferrer">
-        🔗 Open Official NCERT Textbook Portal
-    </a>
-
-    <button class="backButton" type="button" onclick="closeTextbooks()">
+    <button
+        class="backButton"
+        type="button"
+        onclick="closeTextbooks()"
+    >
         ← Back
     </button>
 </section>
