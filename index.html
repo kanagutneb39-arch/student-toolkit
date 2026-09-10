@@ -535,13 +535,61 @@
     <h2>🧠 Quiz</h2>
     <p class="calculator-description">Test your knowledge with quick multiple-choice questions.</p>
 
-    <label for="quizSubject">Choose Subject</label>
-    <select id="quizSubject" onchange="startQuiz()">
-        <option value="mixed">🎲 Mixed</option>
-        <option value="science">🔬 Science</option>
-        <option value="math">📐 Mathematics</option>
-        <option value="general">🌍 General Knowledge</option>
-    </select>
+    <div class="quiz-setup">
+        <div class="quiz-setting">
+            <label for="quizSubject">📚 Subject</label>
+            <select id="quizSubject">
+                <option value="mixed">🎲 Mixed</option>
+                <option value="science">🔬 Science</option>
+                <option value="math">📐 Mathematics</option>
+                <option value="general">🌍 General Knowledge</option>
+            </select>
+        </div>
+
+        <div class="quiz-setting">
+            <label for="quizClass">🎓 Class</label>
+            <select id="quizClass">
+                <option value="1">Class 1</option>
+                <option value="2">Class 2</option>
+                <option value="3">Class 3</option>
+                <option value="4">Class 4</option>
+                <option value="5">Class 5</option>
+                <option value="6">Class 6</option>
+                <option value="7">Class 7</option>
+                <option value="8">Class 8</option>
+                <option value="9">Class 9</option>
+                <option value="10" selected>Class 10</option>
+                <option value="11">Class 11</option>
+                <option value="12">Class 12</option>
+            </select>
+        </div>
+
+        <div class="quiz-setting">
+            <label for="quizDifficulty">🎯 Difficulty</label>
+            <select id="quizDifficulty">
+                <option value="easy">🟢 Easy</option>
+                <option value="medium" selected>🟡 Medium</option>
+                <option value="hard">🔴 Hard</option>
+            </select>
+        </div>
+
+        <div class="quiz-setting">
+            <label for="quizQuestionCount">🔢 Questions</label>
+            <select id="quizQuestionCount">
+                <option value="5">5 Questions</option>
+                <option value="10">10 Questions</option>
+                <option value="15">15 Questions</option>
+            </select>
+        </div>
+
+        <button
+            id="quizStartButton"
+            type="button"
+            onclick="startQuiz()"
+        >
+            ▶️ Start Quiz
+        </button>
+    </div>
 
     <div id="quizProgress" class="quiz-progress"></div>
 

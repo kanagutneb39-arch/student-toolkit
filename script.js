@@ -328,26 +328,6 @@ function openTool(toolId) {
 }
 
 
-function closePercentage() {
-    showMenu();
-}
-
-function closeMarks() {
-    showMenu();
-}
-
-function closeCGPA() {
-    showMenu();
-}
-
-function closeTimer() {
-    showMenu();
-}
-
-function closeTimetable() {
-    showMenu();
-}
-
 function closeTool() {
     showMenu();
 }
@@ -697,24 +677,6 @@ function calculatePercentage() {
 }
 
 
-
-function setupTimetableScrollHint() {
-    const wrapper = document.querySelector(".timetable-wrapper");
-
-    if (!wrapper || wrapper.dataset.hintReady === "true") {
-        return;
-    }
-
-    wrapper.dataset.hintReady = "true";
-
-    wrapper.addEventListener("scroll", () => {
-        if (wrapper.scrollLeft > 5) {
-            wrapper.classList.add("scrolled");
-        }
-    }, { passive: true });
-}
-
-
 // ============================================================
 // MARKS CALCULATOR
 // ============================================================
@@ -724,52 +686,15 @@ function openMarks() {
 }
 
 
-function addSubject() {
-    const subjects = document.getElementById("subjects");
-
-    if (!subjects) return;
-
-    const row = document.createElement("div");
-    row.className = "subject-row";
-
-    row.innerHTML = `
-        <input
-            type="text"
-            class="subject-name"
-            placeholder="Subject"
-        >
-
-        <input
-            type="number"
-            class="marks-obtained"
-            placeholder="Obtained"
-            min="0"
-        >
-
-        <input
-            type="number"
-            class="marks-total"
-            placeholder="Total"
-            min="1"
-        >
-
-        <button
-            type="button"
-            class="remove-subject"
-            onclick="this.parentElement.remove()"
-        >
-            ✕
-        </button>
-    `;
-
-    subjects.appendChild(row);
-}
-
-
 function calculateMarks() {
-    const rows =
-        document.querySelectorAll(
-            "#subjects .subject-row"
+    const marks =
+        Number(
+            document.getElementById("marksObtained")?.value
+        );
+
+    const total =
+        Number(
+            document.getElementById("marksTotal")?.value
         );
 
     const result =
@@ -777,58 +702,35 @@ function calculateMarks() {
 
     if (!result) return;
 
-    if (!rows.length) {
+    if (
+        !Number.isFinite(marks) ||
+        !Number.isFinite(total)
+    ) {
         result.textContent =
-            "Please add at least one subject.";
+            "Please enter valid marks.";
 
         return;
     }
 
-    let obtainedTotal = 0;
-    let maximumTotal = 0;
+    if (total <= 0) {
+        result.textContent =
+            "Total marks must be greater than zero.";
 
-    for (const row of rows) {
-        const obtained =
-            Number(
-                row.querySelector(".marks-obtained")?.value
-            );
+        return;
+    }
 
-        const total =
-            Number(
-                row.querySelector(".marks-total")?.value
-            );
+    if (marks < 0 || marks > total) {
+        result.textContent =
+            "Obtained marks must be between 0 and total marks.";
 
-        if (
-            !Number.isFinite(obtained) ||
-            !Number.isFinite(total) ||
-            total <= 0 ||
-            obtained < 0 ||
-            obtained > total
-        ) {
-            result.textContent =
-                "Please enter valid marks for every subject.";
-
-            return;
-        }
-
-        obtainedTotal += obtained;
-        maximumTotal += total;
+        return;
     }
 
     const percentage =
-        (obtainedTotal / maximumTotal) * 100;
+        (marks / total) * 100;
 
-    result.innerHTML = `
-        <h3>📊 Your Result</h3>
-        <p>
-            <strong>${obtainedTotal}</strong>
-            / ${maximumTotal} marks
-        </p>
-        <p>
-            Percentage:
-            <strong>${percentage.toFixed(2)}%</strong>
-        </p>
-    `;
+    result.textContent =
+        `${percentage.toFixed(2)}%`;
 }
 
 
@@ -838,44 +740,6 @@ function calculateMarks() {
 
 function openCGPA() {
     openTool("cgpaTool");
-}
-
-
-function addCGPASubject() {
-    const subjects =
-        document.getElementById("cgpaSubjects");
-
-    if (!subjects) return;
-
-    const row = document.createElement("div");
-    row.className = "cgpa-row";
-
-    row.innerHTML = `
-        <input
-            type="text"
-            class="cgpa-subject-name"
-            placeholder="Subject"
-        >
-
-        <input
-            type="number"
-            class="cgpa-input"
-            placeholder="Grade Point"
-            min="0"
-            max="10"
-            step="0.1"
-        >
-
-        <button
-            type="button"
-            class="remove-cgpa-subject"
-            onclick="this.parentElement.remove()"
-        >
-            ✕
-        </button>
-    `;
-
-    subjects.appendChild(row);
 }
 
 
@@ -900,33 +764,31 @@ function calculateCGPA() {
     let total = 0;
     let count = 0;
 
-    for (const input of inputs) {
-        const value = Number(input.value);
+    inputs.forEach(input => {
+        const value =
+            Number(input.value);
 
         if (
-            input.value.trim() === "" ||
-            !Number.isFinite(value) ||
-            value < 0 ||
-            value > 10
+            input.value.trim() !== "" &&
+            Number.isFinite(value)
         ) {
-            result.textContent =
-                "Please enter valid grade points from 0 to 10.";
-
-            return;
+            total += value;
+            count++;
         }
+    });
 
-        total += value;
-        count++;
+    if (count === 0) {
+        result.textContent =
+            "Please enter at least one grade point.";
+
+        return;
     }
 
-    const cgpa = total / count;
+    const cgpa =
+        total / count;
 
-    result.innerHTML = `
-        <h3>🎯 Your CGPA</h3>
-        <p>
-            <strong>${cgpa.toFixed(2)}</strong>
-        </p>
-    `;
+    result.textContent =
+        `CGPA: ${cgpa.toFixed(2)}`;
 }
 
 
@@ -1026,7 +888,7 @@ function setTimer(minutes) {
 // ============================================================
 
 function openTimetable() {
-    openTool("timetableTool");
+    hideAllTools();
 
     const tool =
         document.getElementById("timetableTool");
@@ -1036,7 +898,14 @@ function openTimetable() {
     }
 
     renderTimetable();
-    setupTimetableScrollHint();
+
+    if (timetableIsEmpty()) {
+        showFancyAlert(
+            "Almost there! 📅",
+            "Your timetable is empty. Add your first study session to get started! 📚✨",
+            "📚"
+        );
+    }
 }
 
 
@@ -1325,7 +1194,7 @@ const converterUnits = {
 
 
 function openConverter() {
-    openTool("converterTool");
+    hideAllTools();
 
     const tool =
         document.getElementById("converterTool");
@@ -2087,7 +1956,13 @@ function renderCountdown(data) {
 function openCountdown() {
     stopCountdownInterval();
 
-    openTool("countdownTool");
+    if (typeof hideAllTools === "function") {
+        hideAllTools();
+    }
+
+    document.querySelectorAll(".calculator").forEach(function (tool) {
+        tool.style.display = "none";
+    });
 
     const countdown = document.getElementById("countdownTool");
 
@@ -2118,7 +1993,9 @@ function closeCountdown() {
         countdown.style.display = "none";
     }
 
-    showMenu();
+    if (typeof showHome === "function") {
+        showHome();
+    }
 }
 
 function startCountdown() {
@@ -2229,7 +2106,13 @@ function saveTodos(todos) {
 }
 
 function openTodo() {
-    openTool("todoTool");
+    if (typeof hideAllTools === "function") {
+        hideAllTools();
+    }
+
+    document.querySelectorAll(".calculator").forEach(function (tool) {
+        tool.style.display = "none";
+    });
 
     const todo = document.getElementById("todoTool");
 
@@ -2246,7 +2129,9 @@ function closeTodo() {
         todo.style.display = "none";
     }
 
-    showMenu();
+    if (typeof showHome === "function") {
+        showHome();
+    }
 }
 
 function addTodo() {
@@ -2439,7 +2324,13 @@ function saveNotes(notes) {
 }
 
 function openNotes() {
-    openTool("notesTool");
+    if (typeof hideAllTools === "function") {
+        hideAllTools();
+    }
+
+    document.querySelectorAll(".calculator").forEach(function (tool) {
+        tool.style.display = "none";
+    });
 
     const notes = document.getElementById("notesTool");
 
@@ -2458,7 +2349,9 @@ function closeNotes() {
         notes.style.display = "none";
     }
 
-    showMenu();
+    if (typeof showHome === "function") {
+        showHome();
+    }
 }
 
 function saveNote() {
@@ -2797,7 +2690,9 @@ function getQuizQuestions() {
 }
 
 function openQuiz() {
-    openTool("quizTool");
+    document.querySelectorAll(".calculator").forEach(tool => {
+        tool.style.display = "none";
+    });
 
     const quiz = document.getElementById("quizTool");
 
@@ -2814,7 +2709,9 @@ function closeQuiz() {
         quiz.style.display = "none";
     }
 
-    showMenu();
+    if (typeof showHome === "function") {
+        showHome();
+    }
 }
 
 function startQuiz() {
@@ -3043,200 +2940,44 @@ function finishQuiz() {
 
 
 /* =========================
-   TEXTBOOK LIBRARY
+   NCERT TEXTBOOKS
    ========================= */
 
-const TEXTBOOK_SOURCES = {
-    ncert: {
-        name: "NCERT",
-        icon: "🇮🇳",
-        description: "Official NCERT textbooks for Classes 1–12.",
-        url: "https://ncert.nic.in/textbook.php",
-        button: "Open NCERT →",
-        subjects: [
-            ["📐", "Mathematics", "Official NCERT Mathematics resources"],
-            ["🔬", "Science", "Official NCERT Science resources"],
-            ["🌍", "Social Science", "Official NCERT Social Science resources"],
-            ["📖", "English", "Official NCERT English resources"],
-            ["🇮🇳", "Hindi", "Official NCERT Hindi resources"]
-        ]
-    },
-
-    maharashtra: {
-        name: "Maharashtra — Balbharati",
-        icon: "🟠",
-        description: "Official Maharashtra State Bureau of Textbook Production & Curriculum Research resources.",
-        url: "https://books.ebalbharati.in/ebook.aspx",
-        button: "Open Balbharati →",
-        subjects: [
-            ["📚", "Textbook Library", "Official e-Balbharati books"],
-            ["📝", "Workbooks", "Official Balbharati workbooks"],
-            ["👩‍🏫", "Teacher Handbooks", "Official teaching resources"]
-        ]
-    },
-
-    tamilnadu: {
-        name: "Tamil Nadu — Textbook Corporation",
-        icon: "🔴",
-        description: "Official Tamil Nadu Textbook and Educational Services Corporation resources.",
-        url: "https://www.textbookcorp.in/",
-        button: "Open Tamil Nadu Textbooks →",
-        subjects: [
-            ["📚", "School Textbooks", "Official Tamil Nadu textbook portal"],
-            ["🌐", "Tamil & English Medium", "Official medium-specific textbook resources"],
-            ["📋", "Student Resources", "Official corporation information and resources"]
-        ]
-    },
-
-    kerala: {
-        name: "Kerala — SCERT",
-        icon: "🟢",
-        description: "Official Kerala SCERT textbook and curriculum resources.",
-        url: "https://scert.kerala.gov.in/",
-        button: "Open Kerala SCERT →",
-        subjects: [
-            ["📚", "Textbooks", "Official Kerala SCERT textbook resources"],
-            ["🧪", "Science & Mathematics", "Official subject resources"],
-            ["🗣️", "Languages", "Official language-medium resources"]
-        ]
-    },
-
-    karnataka: {
-        name: "Karnataka — Textbook Society",
-        icon: "🔵",
-        description: "Official Karnataka state textbook resources from the Karnataka Textbook Society.",
-        url: "https://textbooks.karnataka.gov.in/",
-        button: "Open Karnataka Textbooks →",
-        subjects: [
-            ["📚", "State Textbooks", "Official Karnataka school textbook resources"],
-            ["📐", "Mathematics", "Official Karnataka Mathematics resources"],
-            ["🔬", "Science", "Official Karnataka Science resources"],
-            ["🌍", "Social Science", "Official Karnataka Social Science resources"]
-        ]
-    },
-
-    epustakalaya: {
-        name: "Rashtriya e-Pustakalaya",
-        icon: "📖",
-        description: "Government digital library with books across languages, genres and levels.",
-        url: "https://www.ndl.ncert.gov.in/",
-        button: "Open e-Pustakalaya →",
-        subjects: [
-            ["📚", "Digital Books", "Explore the national digital book collection"],
-            ["🌐", "Languages", "Discover books across languages"],
-            ["📖", "Beyond Textbooks", "Explore additional educational reading"]
-        ]
-    }
-};
-
 function openTextbooks() {
-    openTool("textbooksTool");
+    document.querySelectorAll(".calculator").forEach(tool => {
+        tool.style.display = "none";
+    });
 
-    const textbooks =
-        document.getElementById("textbooksTool");
+    const textbooks = document.getElementById("textbooksTool");
 
     if (textbooks) {
         textbooks.style.display = "block";
     }
-
-    updateTextbookLibrary();
 }
 
 function closeTextbooks() {
-    const textbooks =
-        document.getElementById("textbooksTool");
+    const textbooks = document.getElementById("textbooksTool");
 
     if (textbooks) {
         textbooks.style.display = "none";
     }
 
-    showMenu();
+    if (typeof showHome === "function") {
+        showHome();
+    }
 }
 
-function updateTextbookLibrary() {
-    const sourceSelect =
-        document.getElementById("textbookBoardSelect");
 
-    const classSelect =
-        document.getElementById("textbookClassSelect");
+function updateNCERTClass() {
+    const select = document.getElementById("ncertClassSelect");
+    const display = document.getElementById("selectedNCERTClass");
 
-    const display =
-        document.getElementById("selectedTextbookSource");
+    if (!select || !display) return;
 
-    const description =
-        document.getElementById("selectedTextbookDescription");
-
-    const cards =
-        document.getElementById("textbookLibraryCards");
-
-    if (
-        !sourceSelect ||
-        !classSelect ||
-        !display ||
-        !description ||
-        !cards
-    ) {
-        return;
-    }
-
-    const source =
-        TEXTBOOK_SOURCES[sourceSelect.value];
-
-    if (!source) return;
-
-    const classNumber =
-        classSelect.value;
+    const classNumber = select.value;
 
     display.textContent =
-        `${source.icon} ${source.name} — Class ${classNumber}`;
-
-    description.textContent =
-        source.description;
-
-    cards.innerHTML =
-        source.subjects.map(
-            ([icon, title, cardDescription]) => `
-                <a
-                    class="textbook-card"
-                    href="${source.url}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <span>${icon}</span>
-                    <strong>${title}</strong>
-                    <small>${cardDescription}</small>
-                    <b>${source.button}</b>
-                </a>
-            `
-        ).join("");
-
-    const sourceButton =
-        document.getElementById(
-            "openTextbookSourceButton"
-        );
-
-    if (sourceButton) {
-        sourceButton.textContent =
-            `🔗 ${source.name} — Official Source`;
-    }
-}
-
-function openSelectedTextbookSource() {
-    const sourceSelect =
-        document.getElementById("textbookBoardSelect");
-
-    if (!sourceSelect) return;
-
-    const source =
-        TEXTBOOK_SOURCES[sourceSelect.value];
-
-    if (source) {
-        window.open(
-            source.url,
-            "_blank",
-            "noopener,noreferrer"
-        );
-    }
+        `📖 Class ${classNumber} Textbooks`;
 }
 
 /* =========================
