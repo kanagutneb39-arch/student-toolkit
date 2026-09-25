@@ -9,6 +9,7 @@
     <title>Student Toolkit - Free Study Tools, Calculators <title>Student Toolkit</title> NCERT Resources</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 <!-- STUDENT TOOLKIT SEO START -->
 <meta name="description" content="Student Toolkit provides free student tools including percentage, marks and CGPA calculators, study timer, timetable, unit converter, quizzes and access to official NCERT textbooks.">
 <meta name="robots" content="index, follow">
@@ -1135,6 +1136,16 @@
 
 <!-- YOUR JAVASCRIPT -->
 <script src="script.js?v=2"></script>
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+            .catch(error => {
+                console.error("Service worker registration failed:", error);
+            });
+    });
+}
+</script>
 
 </body>
 </html>

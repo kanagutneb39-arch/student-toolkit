@@ -1,0 +1,10 @@
+{
+  "name": "Student Toolkit",
+  "short_name": "Student Toolkit",
+  "description": "Free study tools and educational resources for students.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary"
+}
